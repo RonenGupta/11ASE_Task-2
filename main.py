@@ -31,7 +31,7 @@ def input(key):
             gun.blink(color.red)
             bullet = Entity(parent=gun, model='cube', scale=.6, color=color.black)
             bullet.world_parent = scene
-            bullet.animate_position(bullet.position+(bullet.forward*5000), curve=curve.linear, duration=0.5)
+            bullet.animate_position(bullet.position+(bullet.forward*3000), curve=curve.linear, duration=0.5)
             destroy(bullet, delay=0.5)
 
 
