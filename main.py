@@ -7,9 +7,9 @@ player = FirstPersonController(model='cube', color=color.clear, speed = 20, scal
 ground = Entity(model='plane', collider='box',scale = 128, texture ='grass')
 Sky()
 
-def Sprint():
-    if held_keys['shift']:
-        print("Shift")
+def update():
+        if held_keys['shift']:
+                player.speed = 40
 
 player.gun = None
 
@@ -23,7 +23,7 @@ gun.on_click = get_gun
 
 
 hookshot_target = Button(parent=scene, model='cube', color=color.brown, position=(4,5,5))
-hookshot_target.on_click = Func(player.animate_position, hookshot_target.position, duration=.5, curve=curve.linear)
+hookshot_target.on_click = Func(player.animate_position, hookshot_target.position, duration=.5, curve=curve.out_quad)
 
 def input(key):
         if key == 'left mouse down':
@@ -35,5 +35,5 @@ def input(key):
             destroy(bullet, delay=0.5)
 
 
-Sprint()
+update()
 app.run()

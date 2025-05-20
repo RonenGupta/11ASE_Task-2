@@ -57,7 +57,7 @@
 
 4. Game End: After the game has ended, (The user has died ingame) the game calculates the score of all the enemies that have been killed, and outputs them to the user in a UI.
 
-5. Loop: The user is then prompted to the menu scrren again with the same 4 tabs, leading to a loop until they press the exit button, where they can view the tutorial, free play, or play before exiting.
+5. Loop: The user is then prompted to the menu screen again with the same 4 tabs, leading to a loop until they press the exit button, where they can view the tutorial, free play, or play before exiting.
 
 - Postconditions: User has played a gamemode, understands how to play the game and has viewed their score.
 
