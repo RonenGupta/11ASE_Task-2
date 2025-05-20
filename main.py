@@ -2,7 +2,7 @@ from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 window.vsync = False
 __name__ == '__main__'
-app = Ursina()
+app = Ursina(fullscreen = True)
 player = FirstPersonController(model='cube', color=color.clear, speed = 20, scale_y=2)
 ground = Entity(model='plane', collider='box',scale = 128, texture ='grass')
 Sky()
