@@ -65,6 +65,7 @@
 ## Design
 ***
 ## Build and Test
+***
 ### Sprint 1 - FPS Text Based GUI Modularized
 - Sprint1Module.py
 ```python
@@ -180,3 +181,9 @@ main()
 4. The next stage of development should immediately implement OOP and further complex aspects of classes. I had already created a base for Sprint 2 which I originally planned to be Sprint 1, however due to Sprint 1 requirements of text based GUI, I resorted to the main.py that is currently in the repository to be submitted as Sprint 2 after being modularised and tweaked a little more. This would add the inbuilt function for FPS controller, and I would also add a working gun (Pistol for now) and an interesting feature, a hookshot, allowing for the user to traverse quicker as if using a grapple gun, possibly a good idea for map design in the game. Overall, huge changes would occur when transitioning from text based to Ursina, and I would be ready to further enhance further from Sprint 2 onwards, adding distinctive gamemodes, UI and other functional/non-functional requirements that the game requires.
 ***
 # Sprint 2
+***
+## Design
+***
+## Build and Test
+***
+
