@@ -29,3 +29,7 @@ def shoot(gun, key):
         destroy(bullet, delay=0.5)
 
 
+# Controls enemy damaging player
+def enmdmg(player, healthbar, enemy):
+    if player.intersects().hit and player.intersects().entity == enemy:
+        healthbar.value -= 5

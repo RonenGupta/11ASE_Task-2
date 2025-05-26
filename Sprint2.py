@@ -1,6 +1,7 @@
 from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
-from Sprint2.Sprint2Module import get_gun, sprint, shoot
+from ursina.prefabs.health_bar import HealthBar
+from Sprint2Module import get_gun, sprint, shoot, enmdmg
 
 # Sync the game to the monitor's refresh rate, default 60hz to prevent screen tearing
 window.vsync = False
@@ -9,8 +10,9 @@ window.vsync = False
 app = Ursina(fullscreen = True)
 
 # Initialises the FirstPersonController class from the inbuilt ursina.prefabs.first_person_controller module as player, 
-# and the Entity class from the ursina module as ground, as well as the sky class.
-player = FirstPersonController(model='cube', color=color.clear, speed = 10, scale_y=2)
+# and the Entity class from the ursina module as ground, as well as the sky class and healthbar from the ursina.prefabs.health_bar module as HealthBar.
+player = FirstPersonController(model='cube', color=color.clear, speed = 10, scale_y=2, collider='box')
+healthbar = HealthBar(bar_color = color.lime.tint(-.25), roundness=.5, highlight_color = color.yellow.tint(-.2))
 ground = Entity(model='plane', collider='box',scale = 128, texture ='grass')
 Sky()
 
@@ -23,10 +25,15 @@ gun.on_click = lambda: get_gun(player, gun)
 hookshot_target = Button(parent=scene, model='cube', color=color.brown, position=(4,5,5))
 hookshot_target.on_click = Func(player.animate_position, hookshot_target.position, duration=.5, curve=curve.out_quad)
 
+# Add an example enemy that follows the player using the SmoothFollow class
+enemy = Entity(model='cube', color=color.red, collider = 'box')
+enemy.add_script(SmoothFollow(target=player, offset=[0, 0, 0], speed=1))
+
 # Handles other functions such as sprinting and shooting from other module
 def input(key):
     sprint(player, key)
     shoot(gun, key)
+    enmdmg(player, healthbar, enemy)
 
 # Runs the program
 app.run()
