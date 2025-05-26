@@ -1,7 +1,7 @@
 from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 from ursina.prefabs.health_bar import HealthBar
-from Sprint2Module import get_gun, sprint, shoot, enmdmg, override, plrdmg
+from Sprint2Module import get_gun, sprint, shoot, enmdmg, override, plrdmg, GroundedSmoothFollow
 
 # Sync the game to the monitor's refresh rate, default 60hz to prevent screen tearing
 window.vsync = False
@@ -28,21 +28,20 @@ hookshot_target = Button(parent=scene, model='cube', color=color.brown, position
 hookshot_target.on_click = Func(player.animate_position, hookshot_target.position, duration=.5, curve=curve.out_quad)
 
 # Add an example enemy that follows the player using the SmoothFollow class and initialise a healthbar for the enemy
-enemy = Entity(model='cube', color=color.red, collider = 'box', scale_y = 2, health=100)
-enemy.healthbar = HealthBar(max_value=100, value=100, scale=(1.2, .1), position=enemy.position, parent=enemy)
-enemy.healthbar.y += 2
-enemy.healthbar.x -= 0.5
-enemy.healthbar.value = enemy.health
-enemy.add_script(SmoothFollow(target=player, offset=[0, 0, 0], speed=1))
+enemy = Entity(model='cube', color=color.blue, collider = 'box', scale = (1, 2, 1), position=(5, 1, 5), health=100)
+enemy.collider.visible = True
+enemy.add_script(GroundedSmoothFollow(target=player, offset=[0, 0, 0], speed=1))
 
 # Handles other functions such as sprinting, shooting, enemy damaging, and an override function to prevent buggy player
 def input(key):
+    """Function that handles the main input for the game, such as sprinting, shooting, and player/enemy damage."""
     sprint(player, key)
     enmdmg(player, healthbar, enemy)
     override(player)
     if player.gun == gun:
         shoot(gun, key)
-    plrdmg(enemy)
+    if key == 'left mouse down':
+        plrdmg(player, enemy)
 
 # Runs the program
 app.run()
