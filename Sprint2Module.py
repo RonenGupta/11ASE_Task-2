@@ -63,6 +63,7 @@ def override(player):
 
 # Make sure the enemy is always grounded and never no-clipping
 class GroundedSmoothFollow(SmoothFollow):
+    # Make a subclass using inhertance from the SmoothFollow class in Ursina
     """A subclass/childclass of SmoothFollow from Ursina that ensures the entity not only follows the target but also stays grounded."""
     # We use a form of polymorphism here to override the update method of SmoothFollow
     def update(self):
