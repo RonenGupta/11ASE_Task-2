@@ -9,6 +9,13 @@ def sprint(player, key):
     elif key == "shift up":
         player.speed = 10
 
+# Spawn Enemy function
+def spawn_enemy(player):
+    """Function to spawn an enemy at a given position with specified properties."""
+    enemy = Entity(model='cube', color=color.blue, collider = 'box', scale = (1, 2, 1), position=(5, 1, 5), health=100)
+    enemy.collider.visible = True
+    enemy.add_script(GroundedSmoothFollow(target=player, offset=[0, 0, 0], speed=10))
+    return enemy
 
 # Get gun function (Works)
 def get_gun(player, gun):
@@ -105,11 +112,7 @@ class GroundedSmoothFollow(SmoothFollow):
     """A subclass/childclass of SmoothFollow from Ursina that ensures the entity not only follows the target but also stays grounded."""
     # We use a form of polymorphism here to override the update method of SmoothFollow
     def update(self):
-        # Makes a target position for the entity to follow, and also ensures it stays grounded by setting the y position to the entity's y position whereas
-        # the x and z positions are set to the player's x and z positions.
-        target_pos = Vec3(self.target.x, self.entity.y, self.target.z)
-        # Uses the lerp function (linear interpolation) to smoothly move the entity towards the target position at a speed defined by self.speed.
-        # The function takes 3 arguments, the current entity position, the target which we want, and the delta time multiplied by the speed
-        # for the speed of the movement to be smooth.
-        # We multiply the time.dt (delta time) by self.speed to ensure the movement is frame rate centralized.
-        self.entity.position = lerp(self.entity.position, target_pos, time.dt * self.speed) 
+       
+        direction = Vec3(self.target.x - self.entity.x, 0, self.target.z - self.entity.z).normalized()
+        
+        self.entity.position += direction * self.speed * time.dt
