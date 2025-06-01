@@ -1,4 +1,4 @@
-# Year 11 Accelerated Software Engineering Assessment Task 2 - First Person Shooter 
+# Year 11 Accelerated Software Engineering Assessment Task 2 - First Person Shooter Simulator
 ### By Ronen
 
 # Sprint 1
@@ -27,7 +27,7 @@
 
 - Inputs and Outputs: Will need to accept keyboard controls such as WASD and Jump as well as left click and moving the mouse around.
 
-- Core Features: The program must be able to provide a fun and enjoyable FPS game experience, with enemies and a wave based gamemode which the user can play in. There should be a custom map, guns to pick from, and different enemies that spawn with different abilities.
+- Core Features: The program must be able to provide a fun and enjoyable FPS simulator experience, with enemies and a custom simulation gamemode where the player can spawn enemies at will.
 
 - User Interaction: Users can interact with the system through the Ursina module, notably used for python game making, and a README can be provided to help users navigate.
 
@@ -49,24 +49,24 @@
 
 - Main Flow:
 
-1. Launch Game: User launches the game and sees a menu screen with 4 tabs. Play, free play, tutorial, and exit.
+1. Launch Game: User launches the game and sees a menu screen with 3 tabs. Play, tutorial, and exit.
 
-2. Clicks Play: User clicks play (As it is the normal option) and spawns in a map with a gun on the floor, and on the UI appears his health and stamina bar.
+2. Clicks Play: User clicks play (As it is the normal option) and spawns in a map with a gun on the floor, and on the UI appears his health bar.
 
-3. Start Game: After user picks up the gun with a mouse click, the game starts and enemies come out wave by wave, with certain enemies coming in certain waves.
+3. Simulation: After the user picks up the gun, they can press keys on their keyboard to spawn corresponding enemies, or an enemy to simulate an FPS experience.
 
-4. Game End: After the game has ended, (The user has died ingame) the game calculates the score of all the enemies that have been killed, and outputs them to the user in a UI.
+4. Game End: After the game has ended, (The user has died ingame) the game shows the scores of the player (How much they killed)
 
-5. Loop: The user is then prompted to the menu screen again with the same 4 tabs, leading to a loop until they press the exit button, where they can view the tutorial, free play, or play before exiting.
+5. Loop: The user is then prompted to the menu screen again with the same 3 tabs, leading to a loop until they press the exit button, where they can view the tutorial or play before exiting.
 
-- Postconditions: User has played a gamemode, understands how to play the game and has viewed their score.
+- Postconditions: User has played the simulator, understands how to play the game and has viewed their score.
 
 ***
 ## Design
 ***
 ## Build and Test
 ***
-### Sprint 1 - FPS Text Based GUI Modularized
+### Sprint 1 - FPS Text Based GUI Modularized with a Wave Based Gamemode
 - Sprint1Module.py
 ```python
 def show_menu():
@@ -178,7 +178,9 @@ main()
 
 3. Organisation and readability was distinctive in the text based GUI I made. With the use of modularization, docstrings, comments and function organisation/naming, it was simply impossible for not being able to understand the program. Overall, an outstanding use of quality in the GUI.
 
-4. The next stage of development should immediately implement OOP and further complex aspects of classes. I had already created a base for Sprint 2 which I originally planned to be Sprint 1, however due to Sprint 1 requirements of text based GUI, I resorted to the main.py that is currently in the repository to be submitted as Sprint 2 after being modularised and tweaked a little more. This would add the inbuilt function for FPS controller, and I would also add a working gun (Pistol for now) and an interesting feature, a hookshot, allowing for the user to traverse quicker as if using a grapple gun, possibly a good idea for map design in the game. Overall, huge changes would occur when transitioning from text based to Ursina, and I would be ready to further enhance further from Sprint 2 onwards, adding distinctive gamemodes, UI and other functional/non-functional requirements that the game requires.
+4. The next stage of development should immediately implement OOP and further complex aspects of classes. I had already created a base for Sprint 2 which I originally planned to be Sprint 1, however due to Sprint 1 requirements of text based GUI, I resorted to the main.py that is currently in the repository to be submitted as Sprint 2 after being modularised and tweaked a little more. This would add the inbuilt function for FPS controller, and I would also add a working gun (Pistol for now) and an interesting feature, a hookshot, allowing for the user to traverse quicker as if using a grapple gun, possibly a good idea for map design in the game. Overall, huge changes would occur when transitioning from text based to Ursina, and I would be ready to further enhance further from Sprint 2 onwards, adding a simulation, UI and other functional/non-functional requirements that the game requires.
+
+5. Additional Note: I would change my idea from a wave based gamemode to a simulation gamemode, as a simulation would allow for a more dynamic user experience in sprint 2. This sprint was only for a planning and a base, but I will have created sprint 2 with a much more dynamic experience, via spawning enemies.
 ***
 # Sprint 2
 ***
