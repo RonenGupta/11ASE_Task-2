@@ -4,7 +4,7 @@ from ursina.prefabs.health_bar import HealthBar
 from Sprint2Module import get_gun, sprint, shoot, enmdmg, override, plrdmg, GroundedSmoothFollow, menu, spawn_enemy
 
 enemies_alive = []
-
+enemies_killed = 0
 def start_game():
 
     global ground, input
@@ -31,8 +31,15 @@ def start_game():
     hookshot_target = Button(parent=scene, model='cube', color=color.brown, position=(4,5,5))
     hookshot_target.on_click = Func(player.animate_position, hookshot_target.position, duration=.5, curve=curve.out_quad)
 
+    enemies_text = Text(text = f'Enemies Killed: {enemies_killed} | Enemies Alive: {len(enemies_alive)}', position = (0, 0.45), scale = 1, color = color.white)
+
+    def update_enemy_texts():
+        """Updates the enemies text to show the number of enemies killed and alive."""
+        enemies_text.text = f'Enemies Killed: {enemies_killed} | Enemies Alive: {len(enemies_alive)}'
+
     # Handles other functions such as sprinting, shooting, enemy damaging, and an override function to prevent buggy player
     def input(key):
+        global enemies_killed, enemies_alive
         """Function that handles the main input for the game, such as sprinting, shooting, and player/enemy damage."""
         sprint(player, key)
         override(player)
@@ -40,14 +47,17 @@ def start_game():
             shoot(gun, key)
         if key == 'left mouse down':
             for enemy in enemies_alive:
-                plrdmg(player, enemy)
+                if plrdmg(player, enemy):
+                    enemies_alive.remove(enemy)
+                    enemies_killed += 1
+                    update_enemy_texts()
         if key == 'e':
             enemy = spawn_enemy(player)
             enemies_alive.append(enemy)
+            update_enemy_texts()
         for enemy in enemies_alive:
             enmdmg(player, healthbar, enemy)
 
-   
 app = Ursina(fullscreen=True)
 menu(start_game)
 app.run()

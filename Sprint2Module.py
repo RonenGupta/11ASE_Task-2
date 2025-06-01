@@ -60,10 +60,10 @@ def shoot(gun, key):
 # Controls enemy damaging player and death
 def enmdmg(player, healthbar, enemy):
     """Function to handle enemy damage and death"""
-    if player.intersects().hit and player.intersects().entity == enemy:
+    if player.intersects(enemy).hit:
         healthbar.value -= 5
-    if healthbar.value == 0:
-        quit()
+    if healthbar.value <= 0:
+         quit()
 
 # Checks if the player does damage to the enemy with the bullets
 def plrdmg(player, enemy):
@@ -77,6 +77,7 @@ def plrdmg(player, enemy):
         if enemy.health <= 0:
             print("Enemy defeated!")
             destroy(enemy)
+            return True
         
 # Only allow jumping when grounded, fixes bugs in jumping to the player
 def override(player):
