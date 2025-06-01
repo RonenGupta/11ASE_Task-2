@@ -1,5 +1,6 @@
 from ursina import *
 
+
 # Sprinting function (Works)
 def sprint(player, key):
     """Function to handle sprinting mechanics for the player."""
@@ -27,7 +28,7 @@ def shoot(gun, key):
         gun.blink(color.red)
         bullet = Entity(parent=gun, model='cube', scale=.6, color=color.black, collider='box')
         bullet.world_parent = scene
-        bullet.animate_position(bullet.position + (bullet.forward * 500), curve=curve.linear, duration=0.5)
+        bullet.animate_position(bullet.position + (bullet.forward * 1000), curve=curve.linear, duration=0.5)
         destroy(bullet, delay=0.5)
 
 
@@ -61,6 +62,25 @@ def override(player):
         player.y -= 0.1
         player.position = Vec3(round(player.x, 3), round(player.y, 3), round(player.z, 3))
 
+def menu(start_game):
+    """Function to handle the main menu of the game."""
+
+    menu_bg = Entity(parent = camera.ui, model = 'quad', scale = (0.7,0.5), color = color.dark_gray, z = 1)
+
+    title = Text(text="Generic FPS Game.py", scale = 2, y = 0.25, parent = camera.ui, color = color.azure, background=True, origin=(0,0))
+
+    start_button = Button(text="Start Game", scale=(0.3, 0.12), y=0, x=-0.18, parent=camera.ui)
+    freeplay_button = Button(text="Freeplay", scale=(0.3, 0.12), y=0, x=-0.50, parent=camera.ui)
+    tutorial_button = Button(text="Tutorial", scale=(0.3, 0.12), y=0, x=0.50, parent=camera.ui)
+    exit_button = Button(text="Exit Game", scale=(0.3, 0.12), y=0, x=0.18, parent=camera.ui)
+
+    
+    start_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(freeplay_button), destroy(tutorial_button), start_game(), print("Game Started!"))
+    freeplay_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(freeplay_button), destroy(tutorial_button), print("Freeplay Mode Activated!"))
+    tutorial_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(freeplay_button), destroy(tutorial_button), print("Tutorial Mode Activated!"))
+    exit_button.on_click = application.quit
+    
+    
 # Make sure the enemy is always grounded and never no-clipping
 class GroundedSmoothFollow(SmoothFollow):
     # Make a subclass using inhertance from the SmoothFollow class in Ursina
