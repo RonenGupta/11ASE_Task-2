@@ -18,18 +18,36 @@ def get_gun(player, gun):
     player.gun = gun
     gun.collider = None
 
+# Made an inherited class from Entity to create a bullet that moves in the direction it was shot
+class Bullet(Entity):
+    """A class inherited from Entity, being a bullet with properties such as position, direction, and collision."""
+    # Initializes the bullet with a position, direction and other properties
+    def __init__(self, position, direction):
+        super().__init__(parent=scene, model='cube', scale=1, color=color.black, collider='box', position = position)
+        # Sets the direction of the bullet and makes it look at the position it is moving towards
+        self.direction = direction.normalized()
+        self.look_at(position + self.direction)
+
+    def update(self):
+        """Updates the bullets position and checks for collisions."""
+        # Moves the bullet in the direction it is facing, checks for collisions, destroys if it hits something or if it goes 1000 units away from the camera
+        self.position += self.direction * 1000 * time.dt
+        hit_info = self.intersects()
+        if hit_info.hit:
+            destroy(self)
+            return
+        
+        if distance(self.position, camera.world_position) > 1000:
+            destroy(self)
 
 # Controls gun shooting, such as sound, gun color, bullets, and bullet shooting
 def shoot(gun, key):
-    """Function to handle shooting mechanics for the gun."""
-    """Handles shooting mechanics and tracks bullets."""
+    """Function to spawn bullets when the left mouse button is pressed."""
     if key == 'left mouse down':
         Audio("assets/laser_sound.wav")
         gun.blink(color.red)
-        bullet = Entity(parent=gun, model='cube', scale=.6, color=color.black, collider='box')
-        bullet.world_parent = scene
-        bullet.animate_position(bullet.position + (bullet.forward * 1000), curve=curve.linear, duration=0.5)
-        destroy(bullet, delay=0.5)
+        offset = Vec3(0, 0, 0)
+        Bullet(position=gun.world_position + gun.forward * 1.5 + offset, direction=gun.forward)
 
 
 # Controls enemy damaging player and death

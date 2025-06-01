@@ -9,7 +9,7 @@ def start_game():
     global ground, input
 
     # Sync the game to the monitor's refresh rate, default 60hz to prevent screen tearing
-    window.vsync = False
+    window.vsync = True
 
     # Initialises the program to be defaulted to fullscreen and window.borderless helps with mouse movement issues on macOS
     window.borderless = False 
@@ -47,7 +47,7 @@ def start_game():
             plrdmg(player, enemy)
 
    
-app = Ursina()
+app = Ursina(fullscreen=True)
 menu(start_game)
 app.run()
 
