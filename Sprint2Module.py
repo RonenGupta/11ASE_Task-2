@@ -1,5 +1,13 @@
 from ursina import *
+import random
 
+def random_spawn_enemy(player):
+    x = random.uniform(-50, 50)
+    z = random.uniform(-50, 50)
+    enemy = Entity(model='cube', color=color.blue, collider = 'box', scale = (1, 2, 1), position=(x, 1, z), health=100)
+    enemy.collider.visible = True
+    enemy.add_script(GroundedSmoothFollow(target=player, offset=[0, 0, 0], speed=10))
+    return enemy
 
 # Sprinting function (Works)
 def sprint(player, key):
@@ -61,7 +69,7 @@ def shoot(gun, key):
 def enmdmg(player, healthbar, enemy):
     """Function to handle enemy damage and death"""
     if player.intersects(enemy).hit:
-        healthbar.value -= 5
+        healthbar.value -= 1
     if healthbar.value <= 0:
          quit()
 
@@ -88,22 +96,21 @@ def override(player):
         player.y -= 0.1
         player.position = Vec3(round(player.x, 3), round(player.y, 3), round(player.z, 3))
 
-def menu(start_game):
+def menu(start_game, survival_game, instructions):
     """Function to handle the main menu of the game."""
 
     menu_bg = Entity(parent = camera.ui, model = 'quad', scale = (0.7,0.5), color = color.dark_gray, z = 1)
 
     title = Text(text="Generic FPS Game.py", scale = 2, y = 0.25, parent = camera.ui, color = color.azure, background=True, origin=(0,0))
 
-    start_button = Button(text="Start Game", scale=(0.3, 0.12), y=0, x=-0.18, parent=camera.ui)
-    freeplay_button = Button(text="Freeplay", scale=(0.3, 0.12), y=0, x=-0.50, parent=camera.ui)
-    tutorial_button = Button(text="Tutorial", scale=(0.3, 0.12), y=0, x=0.50, parent=camera.ui)
-    exit_button = Button(text="Exit Game", scale=(0.3, 0.12), y=0, x=0.18, parent=camera.ui)
+    start_button = Button(text="Start Game", scale=(0.3, 0.12), y=0, x=-0.18, color= color.azure, parent=camera.ui)
+    survivalplay_button = Button(text="Survival Game", scale=(0.3, 0.12), y=0, x=-0.50, color = color.azure, parent=camera.ui)
+    tutorial_button = Button(text="Tutorial", scale=(0.3, 0.12), y=0, x=0.50, color= color.azure, parent=camera.ui)
+    exit_button = Button(text="Exit Game", scale=(0.3, 0.12), y=0, x=0.18, color = color.red, parent=camera.ui)
 
-    
-    start_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(freeplay_button), destroy(tutorial_button), start_game(), print("Game Started!"))
-    freeplay_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(freeplay_button), destroy(tutorial_button), print("Freeplay Mode Activated!"))
-    tutorial_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(freeplay_button), destroy(tutorial_button), print("Tutorial Mode Activated!"))
+    start_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), start_game(), print("Game Started!"))
+    survivalplay_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), survival_game(), print("Freeplay Mode Activated!"))
+    tutorial_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), instructions(), print("Tutorial Mode Activated!"))
     exit_button.on_click = application.quit
     
     
