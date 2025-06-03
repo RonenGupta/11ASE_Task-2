@@ -72,24 +72,11 @@ class Bullet(Entity):
         except Exception as e:
             print(f"Error updating Bullet: {e}")
 
-# Controls gun shooting, such as sound, gun color, bullets, and bullet shooting
-def shoot(gun, key):
-    """Function to spawn bullets when the left mouse button is pressed."""
-    try:
-        if key == 'left mouse down': # If the left mouse button is pressed
-            Audio("assets/laser_sound.wav") # Play the laser sound
-            gun.blink(color.red) # Makes the gun blink red to indicate shooting
-            offset = Vec3(0, 0, 0) # Offset for the bullet position is straight in front of the gun
-            Bullet(position=gun.world_position + gun.forward * 1.5 + offset, direction=gun.forward) # Creates a bullet entity at the position of the gun
-    except Exception as e:
-        print(f"Error in shoot function: {e}")
-
-
 # Controls enemy damaging player and death
 def enmdmg(player, healthbar, enemy): 
     """Function to handle enemy damage and death"""
     try:
-        if distance(player.position, enemy.position) < 2: 
+        if player.intersects(enemy).hit: # Checks if the player collides with the enemy
             healthbar.value -= 1 # Decreases the health bar value by 1
         if healthbar.value <= 0: # Checks if the health bar value is less than or equal to 0
             quit() # Quit the game if the healthbar is empty (Will change to game over screen later)
@@ -152,10 +139,29 @@ class GroundedSmoothFollow(SmoothFollow):
     # We use a form of polymorphism here to override the update method of SmoothFollow
     def update(self):
         try:
-            min_distance = 2  # Adjust as needed
-            dist = distance(self.target.position, self.entity.position)
-            if dist > min_distance:
-                direction = Vec3(self.target.x - self.entity.x, 0, self.target.z - self.entity.z).normalized() # Calculates the direction vector from the target to the entity, ignoring the y axis to keep the entity grounded
-                self.entity.position += direction * self.speed * time.dt # Moves the entity towards the target at a specified speed, ensuring it stays grounded by not changing the y position
+            direction = Vec3(self.target.x - self.entity.x, 0, self.target.z - self.entity.z).normalized() # Calculates the direction vector from the target to the entity, ignoring the y axis to keep the entity grounded
+            self.entity.position += direction * self.speed * time.dt # Moves the entity towards the target at a specified speed, ensuring it stays grounded by not changing the y position
         except Exception as e:
             print(f"Error in GroundedSmoothFollow update method: {e}")
+
+class Gun(Button):
+    def __init__(self, model, color, position, scale, damage=5, fire_rate=0.5, **kwargs):
+        super().__init__(parent=scene, model=model, color=color, origin_y=-.5, position=position, scale=scale, **kwargs)
+        self.damage = damage
+        self.fire_rate = fire_rate
+        self.last_shot_time = 0 
+
+    def shoot(self):
+        from time import time
+        try:
+            if time() - self.last_shot_time >= self.fire_rate: # Checks if the time since the last shot is greater than or equal to the fire rate
+                Audio("assets/laser_sound.wav")
+                self.blink(color.red)
+                offset = Vec3(0, 0, 0) # Offset for the bullet position is straight in front of the gun
+                Bullet(position=self.world_position + self.forward * 1.5 + offset, direction=self.forward) # Creates a bullet entity at the position of the gun
+                self.last_shot_time = time() # Updates the last shot time to the current shot
+                return True # Tells that the gun was successfully shot
+            return False # No shot was fired due to fire rate restriction
+        except Exception as e:
+            print(f"Error in Gun shoot method: {e}")
+            return False # Returns false if there was an error in shooting
