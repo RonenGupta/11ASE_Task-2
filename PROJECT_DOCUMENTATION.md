@@ -67,6 +67,34 @@
 ## Build and Test
 ***
 ### Sprint 1 - FPS Text Based GUI Modularized with a Wave Based Gamemode
+
+- Sprint 1 README.md
+```python
+# Year 11 Accelerated Software Engineering Assessment Task 2 FPS Game - Sprint 1
+
+### Author
+Ronen Gupta
+
+## Features
+
+- Main Menu: Choose between 4 choices, Play, Free Play, View the Tutorial, or exit the game.
+- Play Mode: Standard FPS gameplay with 5 moves, but text based.
+- Free Play Mode: Try from 5 weapons in text based GUI and practice shooting.
+- Tutorial: View the controls for the text-based main game.
+- Exit: Exit the game.
+
+## Requirements
+
+- To run this program, you need to install the following dependencies:
+- Python 3.8 or higher
+- [Ursina Engine](https://www.ursinaengine.org/) (If you want to try main.py, but Sprint 2 will contain this)
+
+### Install dependencies
+To install the required dependencies, you can run:
+
+```bash
+pip install -r requirements.txt
+```
 - Sprint1Module.py
 ```python
 def show_menu():
@@ -189,3 +217,364 @@ main()
 ## Build and Test
 ***
 
+### Sprint 2 Ursina FPS Game with GUI Modularized with a survival gamemode
+
+- Sprint 2 README.md
+```python
+# Year 11 Accelerated Software Engineering Assessment Task 2 FPS Game - Sprint 2
+
+### Author
+Ronen Gupta
+
+## Features
+
+- Main Menu: Choose between 4 choices, Survival, Free Play, View the Tutorial, or exit the game.
+- Survival Mode: Standard survival FPS gameplay, with hookshots and enemies, survive for as long as you can!
+- Free Play Mode: Try spawning enemies of your own and try guns! (Will add more guns and enemies)
+- Tutorial: View the controls for the gamemodes.
+- Exit: Exit the game.
+
+## Requirements
+
+- To run this program, you need to install the following dependencies:
+- Python 3.8 or higher
+- [Ursina Engine](https://www.ursinaengine.org/)
+
+### Install dependencies
+To install the required dependencies, you can run:
+
+```bash
+pip install -r requirements.txt
+```
+
+- Sprint2Module.py
+```python
+from ursina import * # Ursina library
+import random # Random library
+
+def random_spawn_enemy(player):
+    """Spawns enemies at random positions within a specified range (-50 to 50 on x and z axes)."""
+    try:
+        x = random.uniform(-50, 50) # Random x-coordinate
+        z = random.uniform(-50, 50) # Random z-coordinate
+        enemy = Entity(model='cube', color=color.blue, collider = 'box', scale = (1, 2, 1), position=(x, 1, z), health=100) # Creates an enemy at a random position
+        enemy.collider.visible = True # Makes the collider visible
+        enemy.add_script(GroundedSmoothFollow(target=player, offset=[0, 0, 0], speed=10)) # Adds a script to follow the player
+        return enemy # Returns the created enemy entity
+    except Exception as e:
+        print(f"Error spawning random enemy: {e}")
+
+
+# Sprinting function (Works)
+def sprint(player, key):
+    """Function to handle sprinting mechanics for the player."""
+    try:
+        if key == "shift": # Checks if the shift key is pressed
+            player.speed = 20 # Sets player speed to 20 when sprinting
+        elif key == "shift up": # Checks if the shift key is released
+            player.speed = 10 # Resets player speed to 10 when not sprinting
+    except Exception as e:
+        print(f"Error in sprint function: {e}")
+
+# Spawn Enemy function
+def spawn_enemy(player):
+    """Function to spawn an enemy at a given position with specified properties."""
+    try:
+        enemy = Entity(model='cube', color=color.blue, collider = 'box', scale = (1, 2, 1), position=(5, 1, 5), health=100) # Creates an enemy entity
+        enemy.collider.visible = True # Makes the collider visible
+        enemy.add_script(GroundedSmoothFollow(target=player, offset=[0, 0, 0], speed=10)) # Adds a script to follow the player
+        return enemy # Returns the created enemy entity
+    except Exception as e:
+        print(f"Error spawning enemy: {e}")
+
+# Get gun function (Works)
+def get_gun(player, gun):
+    """Function to equip a gun to the player."""
+    try:
+        gun.parent = camera # Sets the parent of the gun to the camera
+        gun.position = Vec3(0,-.75,.5) # Sets the position of the gun relative to the camera
+        player.gun = gun # Assigns the gun to the player
+        gun.collider = None # Removes the collider from the gun to prevent collisions
+    except Exception as e:
+        print(f"Error getting gun: {e}")
+
+# Made an inherited class from Entity to create a bullet that moves in the direction it was shot
+class Bullet(Entity):
+    """A class inherited from Entity, being a bullet with properties such as position, direction, and collision."""
+    def __init__(self, position, direction): # Position and direction are passed as parameters
+        try:
+            super().__init__(parent=scene, model='cube', scale=1, color=color.black, collider='box', position = position) # Initializes the bullet entity with a cube model, black color, and box collider
+            self.direction = direction.normalized() # Sets the direction of the bullet
+            self.look_at(position + self.direction) # Makes the bullet look at the position it is moving towards
+        except Exception as e:
+            print(f"Error initializing Bullet: {e}")
+
+    def update(self):
+        """Updates the bullets position and checks for collisions."""
+        try:
+            # Moves the bullet in the direction it is facing, checks for collisions, destroys if it hits something or if it goes 1000 units away from the camera
+            self.position += self.direction * 1000 * time.dt # Moves the bullet in the direction it is facing
+            hit_info = self.intersects() # Checks for collisions with other entities
+            if hit_info.hit: # If the bullet hits something
+                destroy(self) # Destroy the bullet if it hits something
+                return # Exit the update method, prevent further movement
+            if distance(self.position, camera.world_position) > 1000: # Checks if the bullet is further than 1000 units away from the camera
+                destroy(self) # Destroys the bullet if it is too far away from the camera
+        except Exception as e:
+            print(f"Error updating Bullet: {e}")
+
+# Controls gun shooting, such as sound, gun color, bullets, and bullet shooting
+def shoot(gun, key):
+    """Function to spawn bullets when the left mouse button is pressed."""
+    try:
+        if key == 'left mouse down': # If the left mouse button is pressed
+            Audio("assets/laser_sound.wav") # Play the laser sound
+            gun.blink(color.red) # Makes the gun blink red to indicate shooting
+            offset = Vec3(0, 0, 0) # Offset for the bullet position is straight in front of the gun
+            Bullet(position=gun.world_position + gun.forward * 1.5 + offset, direction=gun.forward) # Creates a bullet entity at the position of the gun
+    except Exception as e:
+        print(f"Error in shoot function: {e}")
+
+
+# Controls enemy damaging player and death
+def enmdmg(player, healthbar, enemy): 
+    """Function to handle enemy damage and death"""
+    try:
+        if player.intersects(enemy).hit: # Checks if the player collides with the enemy
+            healthbar.value -= 1 # Decreases the health bar value by 1
+        if healthbar.value <= 0: # Checks if the health bar value is less than or equal to 0
+            quit() # Quit the game if the healthbar is empty (Will change to game over screen later)
+    except Exception as e:
+        print(f"Error in enmdmg function: {e}")
+
+
+def plrdmg(player, enemy):
+    """Function to handle player damage to the enemy. Uses raycasting to detect if it hit anything and if it is the enemy."""
+    try:
+        hit_info = raycast(camera.world_position, camera.forward, distance=500, ignore=[player], debug=False) # Raycasts from the camera's position in the direction it is facing
+        if hit_info.hit and hit_info.entity == enemy: # Checks if the raycast hit an entity
+            enemy.blink(color.red) # Blinks the enemy red to indicate it has been hit
+            invoke(setattr, enemy, 'color', color.blue, delay=0.15) # Delay the color change to blue after being hit
+            enemy.health -= 5 # Decreases the enemy's health by 5
+            print(f"Enemy hit! Health: {enemy.health}") # Prints the enemy health to the console
+            if enemy.health <= 0: # Checks if the enemy's health is less than or equal to 0
+                print("Enemy defeated!") # Prints a message to the console when the enemy is defeated
+                destroy(enemy) # Destroys the enemy entity when defeated
+                return True # Returns True if enemy is defeated, for potential actions
+    except Exception as e:
+        print(f"Error in plrdmg function: {e}")
+
+# Only allow jumping when grounded, fixes bugs in jumping to the player
+def override(player):
+    """Function to override the player's jumping behavior to ensure it only occurs when grounded."""
+    try:
+        # Checks if the player is not grounded and is above ground level, then it moves the player down
+        # and rounds the players position to 3 decimal places to prevent no-clipping.
+        if not player.grounded and player.y > 0:
+            player.y -= 0.1
+            player.position = Vec3(round(player.x, 3), round(player.y, 3), round(player.z, 3))
+    except Exception as e:
+        print(f"Error in override function: {e}")
+
+def menu(start_game, survival_game, instructions):
+    """Function to handle the main menu of the game."""
+    try:
+        menu_bg = Entity(parent = camera.ui, model = 'quad', scale = (0.7,0.5), color = color.dark_gray, z = 1) # Menu BG
+
+        title = Text(text="Generic FPS Game.py", scale = 2, y = 0.25, parent = camera.ui, color = color.azure, background=True, origin=(0,0)) # Title
+
+        start_button = Button(text="Simulator Game", scale=(0.3, 0.12), y=0, x=-0.18, color= color.azure, parent=camera.ui) # Start Button for Simulator Game
+        survivalplay_button = Button(text="Survival Game", scale=(0.3, 0.12), y=0, x=-0.50, color = color.azure, parent=camera.ui) # Start Button for Survival Game
+        tutorial_button = Button(text="Tutorial", scale=(0.3, 0.12), y=0, x=0.50, color= color.azure, parent=camera.ui) # Tutorial Button
+        exit_button = Button(text="Exit Game", scale=(0.3, 0.12), y=0, x=0.18, color = color.red, parent=camera.ui) # Exit Button
+
+        start_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), start_game(), print("Game Started!")) # Calls the start_game function in Sprint2.py when the start button is clicked
+        survivalplay_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), survival_game(), print("Freeplay Mode Activated!")) # Calls the survival_game function in Sprint2.py when the survival button is clicked
+        tutorial_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), instructions(), print("Tutorial Mode Activated!")) # Calls the instructions function in Sprint2.py when the tutorial button is clicked
+        exit_button.on_click = application.quit # Exits the game when the exit button is clicked
+    except Exception as e:
+        print(f"Error in menu function: {e}")
+        
+    
+# Make sure the enemy is always grounded and never no-clipping
+class GroundedSmoothFollow(SmoothFollow):
+    # Make a subclass using inhertance from the SmoothFollow class in Ursina
+    """A subclass/childclass of SmoothFollow from Ursina that ensures the entity not only follows the target but also stays grounded."""
+    # We use a form of polymorphism here to override the update method of SmoothFollow
+    def update(self):
+        try:
+            direction = Vec3(self.target.x - self.entity.x, 0, self.target.z - self.entity.z).normalized() # Calculates the direction vector from the target to the entity, ignoring the y axis to keep the entity grounded
+            self.entity.position += direction * self.speed * time.dt # Moves the entity towards the target at a specified speed, ensuring it stays grounded by not changing the y position
+        except Exception as e:
+            print(f"Error in GroundedSmoothFollow update method: {e}")
+```
+
+- Sprint2.py
+```python
+from ursina import * # Ursina Library
+from ursina.prefabs.first_person_controller import FirstPersonController # First Person Controller from Ursina
+from ursina.prefabs.health_bar import HealthBar # Health Bar from Ursina
+from Sprint2Module import get_gun, sprint, shoot, enmdmg, override, plrdmg, menu, spawn_enemy, random_spawn_enemy # Importing function from my Sprint2Module
+import random # Import random for spawning enemies randomly
+
+enemies_alive = [] # List to keep track of alive enemies
+enemies_killed = 0 # Variable to keep track of killed enemies
+time_elapsed = 0 # Variable to keep track of time elapsed in survival mode
+
+def start_game():
+    """Initialises the simulator gamemode, where the player can spawn enemies and shoot them, as well as use a hookshot."""
+
+    global ground, input
+
+    # Sync the game to the monitor's refresh rate, default 60hz to prevent screen tearing
+    window.vsync = True
+
+    # Initialises the program to be defaulted to fullscreen and window.borderless helps with mouse movement issues on macOS
+    window.borderless = False 
+
+    # Initialises the FirstPersonController class from the inbuilt ursina.prefabs.first_person_controller module as player, 
+    # and the Entity class from the ursina module as ground, as well as the sky class and healthbar from the ursina.prefabs.health_bar module as HealthBar.
+    player = FirstPersonController(model='cube', color=color.clear, speed = 10, scale_y=2, collider='box')
+    healthbar = HealthBar(bar_color = color.lime.tint(-.25), roundness=.5, highlight_color = color.yellow.tint(-.2))
+    ground = Entity(model='plane', collider='box',scale = 128, texture ='grass')
+    Sky()
+
+    # Initialises the player having no gun and makes a gun from the Button class and puts it on the ground, and calls the get_gun function
+    player.gun = None
+    gun = Button(parent=scene, model='assets/gun.obj', color=color.gold, origin_y=-.5, position=(3,0,3), scale=(.4,.4,.2))
+    gun.on_click = lambda: get_gun(player, gun)
+
+    # Makes a hookshot from the inbuilt ursina.prefabs.first_person_controller module as well as the functions
+    hookshot_target = Button(parent=scene, model='cube', color=color.brown, position=(4,5,5))
+    hookshot_target.on_click = Func(player.animate_position, hookshot_target.position, duration=.5, curve=curve.out_quad)
+
+    # Text that shows the user the number of enemies currently alive and killed
+    enemies_text = Text(text = f'Enemies Killed: {enemies_killed} | Enemies Alive: {len(enemies_alive)}', position = (0, 0.45), scale = 1, color = color.white)
+
+    def update_enemy_texts():
+        """Updates the enemies text to show the number of enemies killed and alive."""
+        enemies_text.text = f'Enemies Killed: {enemies_killed} | Enemies Alive: {len(enemies_alive)}'
+
+    # Handles other functions such as sprinting, shooting, enemy damaging, and an override function to prevent buggy player
+    def input(key):
+        global enemies_killed, enemies_alive
+        """Function that handles the main input for the game, such as sprinting, shooting, and player/enemy damage."""
+        sprint(player, key) # Sprint function
+        override(player) # Prevents jumping when not grounded
+        if player.gun == gun: # Checks if the player has a gun
+            shoot(gun, key) # Allows the player to shoot the gun
+        if key == 'left mouse down': # Checks if the left mouse button is pressed
+            for enemy in enemies_alive[:]: # Loops through all alive enemies
+                if plrdmg(player, enemy): # Checks if the player kills the enemy
+                    enemies_alive.remove(enemy) # Removes the enemy from the alive list
+                    enemies_killed += 1 # Adds to the enemies killed count
+                    update_enemy_texts() # Updates the enemies text
+        if key == 'e': # Checks if the E key is pressed
+            enemy = spawn_enemy(player) # Spawns an enemy
+            enemies_alive.append(enemy) # Adds the enemy to the alive list
+            update_enemy_texts() # Updates the enemies text
+        for enemy in enemies_alive: # Loops through all alive enemies
+            enmdmg(player, healthbar, enemy) # Handles enemy damaging the player
+
+def survival_game():
+    """Initialises the survival gamemode, where the player must survive for as long as possible against endless waves of enemies."""
+    global ground, input, time_elapsed, update, gun
+
+    # Sync the game to the monitor's refresh rate, default 60hz to prevent screen tearing
+    window.vsync = True
+
+    # Initialises the program to be defaulted to fullscreen and window.borderless helps with mouse movement issues on macOS
+    window.borderless = False 
+
+    # Time elapsed variable
+    time_elapsed = 0
+
+    # Initialises the FirstPersonController class from the inbuilt ursina.prefabs.first_person_controller module as player, 
+    # and the Entity class from the ursina module as ground, as well as the sky class and healthbar from the ursina.prefabs.health_bar module as HealthBar.
+    player = FirstPersonController(model='cube', color=color.clear, speed = 10, scale_y=2, collider='box')
+    healthbar = HealthBar(bar_color = color.lime.tint(-.25), roundness=.5, highlight_color = color.yellow.tint(-.2))
+    ground = Entity(model='plane', collider='box',scale = 128, texture ='grass')
+    Sky()
+
+    # Initialises the player having a gun and makes a gun from the Button class and calls the get_gun function instantly
+    gun = Button(parent=scene, model='assets/gun.obj', color=color.gold, origin_y=-.5, position=(3,0,3), scale=(.4,.4,.2))
+    player.gun = gun
+    get_gun(player, gun)
+
+    # Makes a hookshot from the inbuilt ursina.prefabs.first_person_controller module as well as the functions
+    hookshot_target = Button(parent=scene, model='cube', color=color.brown, position=(4,5,5))
+    hookshot_target.on_click = Func(player.animate_position, hookshot_target.position, duration=.5, curve=curve.out_quad)
+
+    # Enemies text which tracks the enemies killed and alive
+    enemies_text = Text(text = f'Enemies Killed: {enemies_killed} | Enemies Alive: {len(enemies_alive)}', position = (0, 0.45), scale = 1, color = color.white)
+
+    # Function that updates the enemies text
+    def update_enemy_texts():
+        """Updates the enemies text to show the number of enemies killed and alive."""
+        enemies_text.text = f'Enemies Killed: {enemies_killed} | Enemies Alive: {len(enemies_alive)}'
+
+    # Time text that tracks the elapsed time when the survival gamemode is selected
+    time_text = Text(text = f'Elapsed Time: {int(time_elapsed)}', position = (0.5, 0.45), scale=1, color= color.white)
+
+    # Updates the time elapsed per frame and the text
+    def update_time_elapsed_texts():
+        """Updates the elapsed time to show the time elapsed"""
+        global time_elapsed
+        time_elapsed += time.dt
+        time_text.text = f'Elapsed time: {int(time_elapsed)}'
+
+    # Spawns enemies randomly and adds them to a list, and tracks the alive enemies
+    def spawn_enemies_randomly():
+        """Spawns enemies randomly and adds them to the enemies_alive list."""
+        enemy = random_spawn_enemy(player)
+        enemies_alive.append(enemy)
+        update_enemy_texts()
+        invoke(spawn_enemies_randomly, delay=random.uniform(5, 12))
+
+    # Calls the function
+    spawn_enemies_randomly()
+
+    # Updates the time every frame, using the unique update function in Ursina
+    def update():
+        update_time_elapsed_texts()
+
+    # Controls the main functions of the game
+    def input(key):
+        global enemies_killed, enemies_alive
+        """Function that handles the main input for the game, such as sprinting, shooting, and player/enemy damage."""
+        sprint(player, key) # Sprint function
+        override(player) # Prevents jumping when not grounded
+        if player.gun == gun: # Checks if the player has a gun
+            shoot(gun, key) # Allows the player to shoot the gun
+        if key == 'left mouse down': # Checks if the left mouse button is pressed
+            for enemy in enemies_alive[:]: # Loops through all alive enemies
+                if plrdmg(player, enemy): # Checks if the player kills the enemy
+                    enemies_alive.remove(enemy) # Removes the enemy from the alive list
+                    enemies_killed += 1 # Adds to the enemies killed count
+                    update_enemy_texts() # Updates the enemies text
+        for enemy in enemies_alive: # Loops through all alive enemies
+            enmdmg(player, healthbar, enemy) # Handles enemy damaging the player
+
+def instructions():
+     """Initialises the instructions menu for the game, showing the user how to play the game and the controls."""
+     tutorial_bg = Entity(parent=camera.ui, model='quad', scale=(0.7, 0.5), color=color.dark_gray, z=1)
+     maingamemodes = Text("How to play:\n" "Survival Gamemode: Survive waves of enemies and live for as long as you can!\n" "Freeplay Gamemode: Spawn enemies with the E key, use different guns, and simulate FPS!\n" "Exit: Exits the game (See ya!)", parent=tutorial_bg, position=(-0.85, 0.25), scale=1.75, color=color.white)
+     maincontrols = Text("Main Controls:\n" "WASD: Move the player around!\n" "Left mouse button: Shoot the gun!\n" "Shift: Sprint like the wind!\n" "E Key (Only in Freeplay): Spawns Enemies!", parent=tutorial_bg, position=(-0.85, -0.25), scale=1.75, color=color.white)
+     exit_button = Button(text="Exit", parent=tutorial_bg, position=(-1.1, 0.91), scale=(0.1, 0.05), color=color.red, on_click= lambda: (destroy(maincontrols), destroy(maingamemodes), destroy(tutorial_bg), destroy(exit_button), menu(start_game, survival_game, instructions)))
+
+
+# Calls the menu function, fullscreen, and runs the game
+app = Ursina(fullscreen=True)
+menu(start_game, survival_game, instructions)
+app.run()
+
+```
+***
+## Review
+1. Judging by my newly made functional and non-functional requirements, Sprint 2 successfully meets the majority outlined in my documentation. The game provides a visible gun, crosshair, healthbar, and allows the player to move, shoot and spawn enemies as specified. A UI menu has also been incorporated for the gamemodes, and the tutorial, which are highly accessible, meeting user interaction requirements. Non-functional requirements such as performance and reliability are also addressed, as the game loads quickly, runs smoothly, and includes error handling in all major functions to prevent crashing. There are clear controls and instructions provided, and the UI updates in real time to reflect game state changes. Furthermore, the project is exponentially successful in aligning with functional and non-functional requirements from the last sprint, meeting the planned criteria and expectations.
+
+2. The program performs well against the modified use-cases identified. When the game is launched, users are greeted with a menu and can easily navigate to different gamemodes or the tutorial. Many functionalities in the use case process such as picking up the gun, shooting, and spawning enemies all work as intended. UI elements such as the healthbar and enemy counters also update correctly, however the game can be enhanced if the user is directed to the menu after ingame death rather than breaking from the ingame loop. The program behaves as expected for most of the use-case, however it would be enhanced if the score was outputted to the user and they were prompted back to the main menu after death.
+
+3. The code demonstrates good readability and maintainability. Functions and classes are modularized from the main gameflow, and docstrings and comments explain their purpose. Error handling is robustly applied for each function, allowing for debugging to be made easier. The structure in both the main.py and module.py also enhanced structure and makes future modifications straightforward. Overall, the code is clean, well documented, and easy to maintain.
+
+4. Several improvements can be made in Sprint 3. As I have already implemented OOP fundamentals, the next sprint will be mostly about touch-ups and other features rather than ingame logic. Feature-wise, adding more weapons, enemies, and a gameover screen would allow for gameplay variety and user engagement. Also, fixing existing models, and the map would allow for the game to be more appealing. These enhancements will allow for a polished, feature-complete product.
