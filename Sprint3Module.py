@@ -1,5 +1,7 @@
 from ursina import * # Ursina library
 import random # Random library
+from ursina.prefabs.first_person_controller import FirstPersonController # First Person Controller from Ursina
+from ursina.prefabs.health_bar import HealthBar # Health Bar from Ursina
 
 def random_spawn_enemy(player):
     """Spawns enemies at random positions within a specified range (-50 to 50 on x and z axes)."""
@@ -13,18 +15,6 @@ def random_spawn_enemy(player):
     except Exception as e:
         print(f"Error spawning random enemy: {e}")
 
-
-# Sprinting function (Works)
-def sprint(player, key):
-    """Function to handle sprinting mechanics for the player."""
-    try:
-        if key == "shift": # Checks if the shift key is pressed
-            player.speed = 20 # Sets player speed to 20 when sprinting
-        elif key == "shift up": # Checks if the shift key is released
-            player.speed = 10 # Resets player speed to 10 when not sprinting
-    except Exception as e:
-        print(f"Error in sprint function: {e}")
-
 # Spawn Enemy function
 def spawn_enemy(player):
     """Function to spawn an enemy at a given position with specified properties."""
@@ -35,6 +25,25 @@ def spawn_enemy(player):
         return enemy # Returns the created enemy entity
     except Exception as e:
         print(f"Error spawning enemy: {e}")
+
+def menu(start_game, survival_game, instructions):
+    """Function to handle the main menu of the game."""
+    try:
+        menu_bg = Entity(parent = camera.ui, model = 'quad', scale = (0.7,0.5), color = color.dark_gray, z = 1) # Menu BG
+
+        title = Text(text="Generic FPS Game.py", scale = 2, y = 0.25, parent = camera.ui, color = color.azure, background=True, origin=(0,0)) # Title
+
+        start_button = Button(text="Simulator Game", scale=(0.3, 0.12), y=0, x=-0.18, color= color.azure, parent=camera.ui) # Start Button for Simulator Game
+        survivalplay_button = Button(text="Survival Game", scale=(0.3, 0.12), y=0, x=-0.50, color = color.azure, parent=camera.ui) # Start Button for Survival Game
+        tutorial_button = Button(text="Tutorial", scale=(0.3, 0.12), y=0, x=0.50, color= color.azure, parent=camera.ui) # Tutorial Button
+        exit_button = Button(text="Exit Game", scale=(0.3, 0.12), y=0, x=0.18, color = color.red, parent=camera.ui) # Exit Button
+
+        start_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), start_game(), print("Game Started!")) # Calls the start_game function in Sprint2.py when the start button is clicked
+        survivalplay_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), survival_game(), print("Freeplay Mode Activated!")) # Calls the survival_game function in Sprint2.py when the survival button is clicked
+        tutorial_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), instructions(), print("Tutorial Mode Activated!")) # Calls the instructions function in Sprint2.py when the tutorial button is clicked
+        exit_button.on_click = application.quit # Exits the game when the exit button is clicked
+    except Exception as e:
+        print(f"Error in menu function: {e}")
 
 # Made an inherited class from Entity to create a bullet that moves in the direction it was shot
 class Bullet(Entity):
@@ -61,66 +70,58 @@ class Bullet(Entity):
         except Exception as e:
             print(f"Error updating Bullet: {e}")
 
-# Controls enemy damaging player and death
-def enmdmg(player, healthbar, enemy): 
-    """Function to handle enemy damage and death"""
-    try:
-        if player.intersects(enemy).hit: # Checks if the player collides with the enemy
-            healthbar.value -= 1 # Decreases the health bar value by 1
-        if healthbar.value <= 0: # Checks if the health bar value is less than or equal to 0
-            quit() # Quit the game if the healthbar is empty (Will change to game over screen later)
-    except Exception as e:
-        print(f"Error in enmdmg function: {e}")
+class Player(FirstPersonController):
+    def __init__(self, **kwargs):
+        super().__init__(model='cube', color=color.clear, speed=10, scale_y=2, collider='box', **kwargs)
+        self.gun = None
+        self.healthbar = HealthBar(bar_color=color.lime.tint(-.25), roundness=.5, highlight_color=color.yellow.tint(-.2))
 
+    def sprint(self, key):
+        """Function to handle sprinting mechanics for the player."""
+        try:
+            if key == "shift": # Checks if the shift key is pressed
+                self.speed = 20 # Sets player speed to 20 when sprinting
+            elif key == "shift up": # Checks if the shift key is released
+                self.speed = 10 # Resets player speed to 10 when not sprinting
+        except Exception as e:
+            print(f"Error in sprint function: {e}")
 
-def plrdmg(player, enemy):
-    """Function to handle player damage to the enemy. Uses raycasting to detect if it hit anything and if it is the enemy."""
-    try:
-        hit_info = raycast(camera.world_position, camera.forward, distance=500, ignore=[player], debug=False) # Raycasts from the camera's position in the direction it is facing
-        if hit_info.hit and hit_info.entity == enemy: # Checks if the raycast hit an entity
-            enemy.blink(color.red) # Blinks the enemy red to indicate it has been hit
-            invoke(setattr, enemy, 'color', color.blue, delay=0.15) # Delay the color change to blue after being hit
-            enemy.health -= 5 # Decreases the enemy's health by gun damage
-            print(f"Enemy hit! Health: {enemy.health}") # Prints the enemy health to the console
-            if enemy.health <= 0: # Checks if the enemy's health is less than or equal to 0
-                print("Enemy defeated!") # Prints a message to the console when the enemy is defeated
-                destroy(enemy) # Destroys the enemy entity when defeated
-                return True # Returns True if enemy is defeated, for potential actions
-    except Exception as e:
-        print(f"Error in plrdmg function: {e}")
+    def override(self):
+        """Function to override the player's jumping behavior to ensure it only occurs when grounded."""
+        try:
+            # Checks if the player is not grounded and is above ground level, then it moves the player down
+            # and rounds the players position to 3 decimal places to prevent no-clipping.
+            if not self.grounded and self.y > 0:
+                self.y -= 0.1
+                self.position = Vec3(round(self.x, 3), round(self.y, 3), round(self.z, 3))
+        except Exception as e:
+            print(f"Error in override function: {e}")
 
-# Only allow jumping when grounded, fixes bugs in jumping to the player
-def override(player):
-    """Function to override the player's jumping behavior to ensure it only occurs when grounded."""
-    try:
-        # Checks if the player is not grounded and is above ground level, then it moves the player down
-        # and rounds the players position to 3 decimal places to prevent no-clipping.
-        if not player.grounded and player.y > 0:
-            player.y -= 0.1
-            player.position = Vec3(round(player.x, 3), round(player.y, 3), round(player.z, 3))
-    except Exception as e:
-        print(f"Error in override function: {e}")
+    def enmdmg(self, amount):
+        """Function to handle player damage from enemies."""
+        try:
+            self.healthbar.value -= amount 
+            if self.healthbar.value <= 0: 
+                quit() 
+        except Exception as e:
+            print(f"Error in enmdmg function: {e}")
 
-def menu(start_game, survival_game, instructions):
-    """Function to handle the main menu of the game."""
-    try:
-        menu_bg = Entity(parent = camera.ui, model = 'quad', scale = (0.7,0.5), color = color.dark_gray, z = 1) # Menu BG
-
-        title = Text(text="Generic FPS Game.py", scale = 2, y = 0.25, parent = camera.ui, color = color.azure, background=True, origin=(0,0)) # Title
-
-        start_button = Button(text="Simulator Game", scale=(0.3, 0.12), y=0, x=-0.18, color= color.azure, parent=camera.ui) # Start Button for Simulator Game
-        survivalplay_button = Button(text="Survival Game", scale=(0.3, 0.12), y=0, x=-0.50, color = color.azure, parent=camera.ui) # Start Button for Survival Game
-        tutorial_button = Button(text="Tutorial", scale=(0.3, 0.12), y=0, x=0.50, color= color.azure, parent=camera.ui) # Tutorial Button
-        exit_button = Button(text="Exit Game", scale=(0.3, 0.12), y=0, x=0.18, color = color.red, parent=camera.ui) # Exit Button
-
-        start_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), start_game(), print("Game Started!")) # Calls the start_game function in Sprint2.py when the start button is clicked
-        survivalplay_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), survival_game(), print("Freeplay Mode Activated!")) # Calls the survival_game function in Sprint2.py when the survival button is clicked
-        tutorial_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), instructions(), print("Tutorial Mode Activated!")) # Calls the instructions function in Sprint2.py when the tutorial button is clicked
-        exit_button.on_click = application.quit # Exits the game when the exit button is clicked
-    except Exception as e:
-        print(f"Error in menu function: {e}")
-        
-    
+    def plrdmg(self, enemy, damage):
+        """Function to handle player damage to the enemy. Uses raycasting to detect if it hit anything and if it is the enemy."""
+        try:
+            hit_info = raycast(camera.world_position, camera.forward, distance=500, ignore=[self], debug=False) # Raycasts from the camera's position in the direction it is facing
+            if hit_info.hit and hit_info.entity == enemy: # Checks if the raycast hit an entity
+                enemy.blink(color.red) # Blinks the enemy red to indicate it has been hit
+                invoke(setattr, enemy, 'color', color.blue, delay=0.15) # Delay the color change to blue after being hit
+                enemy.health -= damage # Decreases the enemy's health by gun damage
+                print(f"Enemy hit! Health: {enemy.health}") # Prints the enemy health to the console
+                if enemy.health <= 0: # Checks if the enemy's health is less than or equal to 0
+                    print("Enemy defeated!") # Prints a message to the console when the enemy is defeated
+                    destroy(enemy) # Destroys the enemy entity when defeated
+                    return True # Returns True if enemy is defeated, for potential actions
+        except Exception as e:
+            print(f"Error in plrdmg function: {e}")
+      
 # Make sure the enemy is always grounded and never no-clipping
 class GroundedSmoothFollow(SmoothFollow):
     # Make a subclass using inhertance from the SmoothFollow class in Ursina
@@ -170,7 +171,8 @@ class Gun(Button):
         try:
             self.parent = scene
             player.gun = None
-            self.position = mouse.world_point
+            drop_point = player.position + Vec3(0, 1, 1)
+            self.position = drop_point
             self.collider = 'box'
         except Exception as e:
             print(f"Error dropping gun: {e}")

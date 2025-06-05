@@ -1,7 +1,5 @@
 from ursina import * # Ursina Library
-from ursina.prefabs.first_person_controller import FirstPersonController # First Person Controller from Ursina
-from ursina.prefabs.health_bar import HealthBar # Health Bar from Ursina
-from Sprint3Module import sprint, Gun, enmdmg, override, plrdmg, menu, spawn_enemy, random_spawn_enemy # Importing function from my Sprint2Module
+from Sprint3Module import Gun, Player, menu, spawn_enemy, random_spawn_enemy # Importing function from my Sprint2Module
 import random # Import random for spawning enemies randomly
 
 enemies_alive = [] # List to keep track of alive enemies
@@ -21,8 +19,7 @@ def start_game():
 
     # Initialises the FirstPersonController class from the inbuilt ursina.prefabs.first_person_controller module as player, 
     # and the Entity class from the ursina module as ground, as well as the sky class and healthbar from the ursina.prefabs.health_bar module as HealthBar.
-    player = FirstPersonController(model='cube', color=color.clear, speed = 10, scale_y=2, collider='box')
-    healthbar = HealthBar(bar_color = color.lime.tint(-.25), roundness=.5, highlight_color = color.yellow.tint(-.2))
+    player = Player()
     ground = Entity(model='plane', collider='box',scale = 128, texture ='grass')
     Sky()
 
@@ -45,18 +42,19 @@ def start_game():
 
     def update():
         for enemy in enemies_alive: # Loops through all alive enemies
-            enmdmg(player, healthbar, enemy) # Handles enemy damaging the player
+            if player.intersects(enemy).hit:
+                player.enmdmg(1)
 
     # Handles other functions such as sprinting, shooting, enemy damaging, and an override function to prevent buggy player
     def input(key):
         global enemies_killed, enemies_alive
         """Function that handles the main input for the game, such as sprinting, shooting, and player/enemy damage."""
-        sprint(player, key) # Sprint function
-        override(player) # Prevents jumping when not grounded
+        player.sprint(key) # Sprint function
+        player.override() # Prevents jumping when not grounded
         if key == 'left mouse down':
             if player.gun and player.gun.shoot(): # Checks if the player has a gun
                 for enemy in enemies_alive[:]: # Loops through all alive enemies
-                    if plrdmg(player, enemy): # Checks if the player kills the enemy
+                    if player.plrdmg(enemy, player.gun.damage): # Checks if the player kills the enemy
                         enemies_alive.remove(enemy) # Removes the enemy from the alive list
                         enemies_killed += 1 # Adds to the enemies killed count
                         update_enemy_texts() # Updates the enemies text
@@ -66,7 +64,7 @@ def start_game():
             update_enemy_texts() # Updates the enemies text
         if key == 'q':
             if player.gun:
-                gun.drop_gun(player)
+                player.gun.drop_gun(player)
 
 def survival_game():
     """Initialises the survival gamemode, where the player must survive for as long as possible against endless waves of enemies."""
@@ -83,8 +81,7 @@ def survival_game():
 
     # Initialises the FirstPersonController class from the inbuilt ursina.prefabs.first_person_controller module as player, 
     # and the Entity class from the ursina module as ground, as well as the sky class and healthbar from the ursina.prefabs.health_bar module as HealthBar.
-    player = FirstPersonController(model='cube', color=color.clear, speed = 10, scale_y=2, collider='box')
-    healthbar = HealthBar(bar_color = color.lime.tint(-.25), roundness=.5, highlight_color = color.yellow.tint(-.2))
+    player = Player()
     ground = Entity(model='plane', collider='box',scale = 128, texture ='grass')
     Sky()
 
@@ -92,6 +89,7 @@ def survival_game():
     gun = Gun(model='assets/gun.obj', color=color.gold, position=(3,0,3), scale=(.4,.4,.2))
     player.gun = gun
     gun.get_gun(player)
+    gun.on_click = lambda: gun.get_gun(player)
 
     # Makes a hookshot from the inbuilt ursina.prefabs.first_person_controller module as well as the functions
     hookshot_target = Button(parent=scene, model='cube', color=color.brown, position=(4,5,5))
@@ -130,25 +128,26 @@ def survival_game():
     def update():
         update_time_elapsed_texts()
         for enemy in enemies_alive: # Loops through all alive enemies
-            enmdmg(player, healthbar, enemy) # Handles enemy damaging the player
+            if player.intersects(enemy).hit:
+                player.enmdmg(1)
 
 
     # Controls the main functions of the game
     def input(key):
         global enemies_killed, enemies_alive
         """Function that handles the main input for the game, such as sprinting, shooting, and player/enemy damage."""
-        sprint(player, key) # Sprint function
-        override(player) # Prevents jumping when not grounded
+        player.sprint(key) # Sprint function
+        player.override() # Prevents jumping when not grounded
         if key == 'left mouse down': # Checks if the player has a gun
             if player.gun and player.gun.shoot(): 
                 for enemy in enemies_alive[:]: # Loops through all alive enemies
-                    if plrdmg(player, enemy): # Checks if the player kills the enemy
+                    if player.plrdmg(enemy, player.gun.damage): # Checks if the player kills the enemy
                         enemies_alive.remove(enemy) # Removes the enemy from the alive list
                         enemies_killed += 1 # Adds to the enemies killed count
                         update_enemy_texts() # Updates the enemies text
         if key == 'q':
             if player.gun:
-                gun.drop_gun(player)
+                player.gun.drop_gun(player)
 
 def instructions():
      """Initialises the instructions menu for the game, showing the user how to play the game and the controls."""
