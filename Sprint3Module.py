@@ -36,17 +36,6 @@ def spawn_enemy(player):
     except Exception as e:
         print(f"Error spawning enemy: {e}")
 
-# Get gun function (Works)
-def get_gun(player, gun):
-    """Function to equip a gun to the player."""
-    try:
-        gun.parent = camera # Sets the parent of the gun to the camera
-        gun.position = Vec3(0,-.75,.5) # Sets the position of the gun relative to the camera
-        player.gun = gun # Assigns the gun to the player
-        gun.collider = None # Removes the collider from the gun to prevent collisions
-    except Exception as e:
-        print(f"Error getting gun: {e}")
-
 # Made an inherited class from Entity to create a bullet that moves in the direction it was shot
 class Bullet(Entity):
     """A class inherited from Entity, being a bullet with properties such as position, direction, and collision."""
@@ -91,7 +80,7 @@ def plrdmg(player, enemy):
         if hit_info.hit and hit_info.entity == enemy: # Checks if the raycast hit an entity
             enemy.blink(color.red) # Blinks the enemy red to indicate it has been hit
             invoke(setattr, enemy, 'color', color.blue, delay=0.15) # Delay the color change to blue after being hit
-            enemy.health -= 5 # Decreases the enemy's health by 5
+            enemy.health -= 5 # Decreases the enemy's health by gun damage
             print(f"Enemy hit! Health: {enemy.health}") # Prints the enemy health to the console
             if enemy.health <= 0: # Checks if the enemy's health is less than or equal to 0
                 print("Enemy defeated!") # Prints a message to the console when the enemy is defeated
@@ -145,7 +134,7 @@ class GroundedSmoothFollow(SmoothFollow):
             print(f"Error in GroundedSmoothFollow update method: {e}")
 
 class Gun(Button):
-    def __init__(self, model, color, position, scale, damage=5, fire_rate=0.5, **kwargs):
+    def __init__(self, model, color, position, scale, damage=50, fire_rate=0.5, **kwargs):
         super().__init__(parent=scene, model=model, color=color, origin_y=-.5, position=position, scale=scale, **kwargs)
         self.damage = damage
         self.fire_rate = fire_rate
@@ -165,3 +154,23 @@ class Gun(Button):
         except Exception as e:
             print(f"Error in Gun shoot method: {e}")
             return False # Returns false if there was an error in shooting
+        
+    def get_gun(self, player):
+        """Function to equip a gun to the player."""
+        try:
+            self.parent = camera # Sets the parent of the gun to the camera
+            self.position = Vec3(0,-.75,.5) # Sets the position of the gun relative to the camera
+            player.gun = self # Assigns the gun to the player
+            self.collider = None # Removes the collider from the gun to prevent collisions
+        except Exception as e:
+            print(f"Error getting gun: {e}")
+    
+    def drop_gun(self, player):
+        """Function to drop a gun from the player to the ground"""
+        try:
+            self.parent = scene
+            player.gun = None
+            self.position = mouse.world_point
+            self.collider = 'box'
+        except Exception as e:
+            print(f"Error dropping gun: {e}")

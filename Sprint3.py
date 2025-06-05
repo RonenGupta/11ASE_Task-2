@@ -1,7 +1,7 @@
 from ursina import * # Ursina Library
 from ursina.prefabs.first_person_controller import FirstPersonController # First Person Controller from Ursina
 from ursina.prefabs.health_bar import HealthBar # Health Bar from Ursina
-from Sprint3Module import get_gun, sprint, Gun, enmdmg, override, plrdmg, menu, spawn_enemy, random_spawn_enemy # Importing function from my Sprint2Module
+from Sprint3Module import sprint, Gun, enmdmg, override, plrdmg, menu, spawn_enemy, random_spawn_enemy # Importing function from my Sprint2Module
 import random # Import random for spawning enemies randomly
 
 enemies_alive = [] # List to keep track of alive enemies
@@ -29,7 +29,8 @@ def start_game():
     # Initialises the player having no gun and makes a gun from the Button class and puts it on the ground, and calls the get_gun function
     player.gun = None
     gun = Gun(model='assets/gun.obj', color=color.gold, position=(3,0,3), scale=(.4,.4,.2))
-    gun.on_click = lambda: get_gun(player, gun)
+    gun.on_click = lambda: gun.get_gun(player)
+
 
     # Makes a hookshot from the inbuilt ursina.prefabs.first_person_controller module as well as the functions
     hookshot_target = Button(parent=scene, model='cube', color=color.brown, position=(4,5,5))
@@ -63,6 +64,9 @@ def start_game():
             enemy = spawn_enemy(player) # Spawns an enemy
             enemies_alive.append(enemy) # Adds the enemy to the alive list
             update_enemy_texts() # Updates the enemies text
+        if key == 'q':
+            if player.gun:
+                gun.drop_gun(player)
 
 def survival_game():
     """Initialises the survival gamemode, where the player must survive for as long as possible against endless waves of enemies."""
@@ -87,7 +91,7 @@ def survival_game():
     # Initialises the player having a gun and makes a gun from the Button class and calls the get_gun function instantly
     gun = Gun(model='assets/gun.obj', color=color.gold, position=(3,0,3), scale=(.4,.4,.2))
     player.gun = gun
-    get_gun(player, gun)
+    gun.get_gun(player)
 
     # Makes a hookshot from the inbuilt ursina.prefabs.first_person_controller module as well as the functions
     hookshot_target = Button(parent=scene, model='cube', color=color.brown, position=(4,5,5))
@@ -142,6 +146,9 @@ def survival_game():
                         enemies_alive.remove(enemy) # Removes the enemy from the alive list
                         enemies_killed += 1 # Adds to the enemies killed count
                         update_enemy_texts() # Updates the enemies text
+        if key == 'q':
+            if player.gun:
+                gun.drop_gun(player)
 
 def instructions():
      """Initialises the instructions menu for the game, showing the user how to play the game and the controls."""
