@@ -1,5 +1,5 @@
 from ursina import * # Ursina Library
-from Sprint3Module import Gun, Player, menu, spawn_enemy, random_spawn_enemy # Importing function from my Sprint2Module
+from Sprint3Module import Gun, Shotgun, Player, menu, spawn_enemy, random_spawn_enemy # Importing function from my Sprint2Module
 import random # Import random for spawning enemies randomly
 
 enemies_alive = [] # List to keep track of alive enemies
@@ -27,6 +27,9 @@ def start_game():
     player.gun = None
     gun = Gun(model='assets/gun.obj', color=color.gold, position=(3,0,3), scale=(.4,.4,.2))
     gun.on_click = lambda: gun.get_gun(player)
+
+    shotgun = Shotgun(model='assets/gun.obj', color=color.gold, position=(5,0,3), scale=(.4,.4,.2))
+    shotgun.on_click = lambda: shotgun.get_gun(player)
 
 
     # Makes a hookshot from the inbuilt ursina.prefabs.first_person_controller module as well as the functions
@@ -87,8 +90,6 @@ def survival_game():
 
     # Initialises the player having a gun and makes a gun from the Button class and calls the get_gun function instantly
     gun = Gun(model='assets/gun.obj', color=color.gold, position=(3,0,3), scale=(.4,.4,.2))
-    player.gun = gun
-    gun.get_gun(player)
     gun.on_click = lambda: gun.get_gun(player)
 
     # Makes a hookshot from the inbuilt ursina.prefabs.first_person_controller module as well as the functions
@@ -112,6 +113,12 @@ def survival_game():
         global time_elapsed
         time_elapsed += time.dt
         time_text.text = f'Elapsed time: {int(time_elapsed)}'
+
+    def spawn_guns():
+            shotgun = Shotgun(model='assets/gun.obj', color=color.gold, position=(3,0,3), scale=(.4,.4,.2))
+            shotgun.on_click = lambda: shotgun.get_gun(player)
+
+    invoke(spawn_guns, delay = 10)
 
     # Spawns enemies randomly and adds them to a list, and tracks the alive enemies
     def spawn_enemies_randomly():
