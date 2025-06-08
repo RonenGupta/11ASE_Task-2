@@ -65,9 +65,6 @@ def start_game():
             enemy = spawn_enemy(player) # Spawns an enemy
             enemies_alive.append(enemy) # Adds the enemy to the alive list
             update_enemy_texts() # Updates the enemies text
-        if key == 'q':
-            if player.gun:
-                player.gun.drop_gun(player)
 
 def survival_game():
     """Initialises the survival gamemode, where the player must survive for as long as possible against endless waves of enemies."""
@@ -152,9 +149,6 @@ def survival_game():
                         enemies_alive.remove(enemy) # Removes the enemy from the alive list
                         enemies_killed += 1 # Adds to the enemies killed count
                         update_enemy_texts() # Updates the enemies text
-        if key == 'q':
-            if player.gun:
-                player.gun.drop_gun(player)
 
 def instructions():
      """Initialises the instructions menu for the game, showing the user how to play the game and the controls."""

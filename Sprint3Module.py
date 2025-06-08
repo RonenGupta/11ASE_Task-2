@@ -160,7 +160,7 @@ class Gun(Button):
         """Function to equip a gun to the player."""
         try:
             if player.gun:
-                player.drop_gun(player)
+                player.gun.drop_gun(player)
             self.parent = camera # Sets the parent of the gun to the camera
             self.position = Vec3(0,-.75,.5) # Sets the position of the gun relative to the camera
             player.gun = self # Assigns the gun to the player
@@ -190,11 +190,12 @@ class Shotgun(Gun):
             if time() - self.last_shot_time >= self.fire_rate: # Checks if the time since the last shot is greater than or equal to the fire rate
                 Audio("assets/laser_sound.wav")
                 self.blink(color.orange)
+                random_damage = random.randint(90, 120)
+                self.damage = random_damage
                 for i in range(5):  
                     offset = Vec3(0, 0, i * 0.0001)  
-                    bullet = Bullet(position=self.world_position + self.forward * 1.5 + offset, 
-                    direction=self.forward + Vec3(random.uniform(-0.02, 0.02), 0, random.uniform(-0.02, 0.02))) 
-                    bullet.damage = self.damage/5
+                    Bullet(position=self.world_position + self.forward * 1.5 + offset, 
+                    direction=self.forward + Vec3(random.uniform(-0.02, 0.02), 0, random.uniform(-0.02, 0.02)))
                 self.last_shot_time = time() # Updates the last shot time to the current shot
                 return True # Tells that the gun was successfully shot
             return False # No shot was fired due to fire rate restriction
@@ -206,7 +207,7 @@ class Shotgun(Gun):
         """Function to equip a gun to the player."""
         try:
             if player.gun:
-                player.drop_gun(player)
+                player.gun.drop_gun(player)
             self.parent = camera # Sets the parent of the gun to the camera
             self.position = Vec3(0,-.75,.5) # Sets the position of the gun relative to the camera
             player.gun = self # Assigns the gun to the player
@@ -219,7 +220,6 @@ class Shotgun(Gun):
         try:
             if self.parent == camera:
                 self.parent = scene
-                player.gun = None
                 drop_point = player.position + Vec3(0, 1, 1)
                 self.position = drop_point
                 self.collider = 'box'
