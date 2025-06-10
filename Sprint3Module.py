@@ -225,3 +225,45 @@ class Shotgun(Gun):
                 self.collider = 'box'
         except Exception as e:
             print(f"Error dropping gun: {e}")
+
+class Minigun(Gun):
+    def __init__(self, model, color, position, scale, damage=5, fire_rate=0.1, **kwargs):
+        super().__init__(model=model, color=color, position=position, scale=scale, damage=damage, fire_rate=fire_rate, **kwargs)
+
+    def shoot(self):
+        from time import time
+        try:
+            if time() - self.last_shot_time >= self.fire_rate: # Checks if the time since the last shot is greater than or equal to the fire rate
+                Audio("assets/laser_sound.wav")
+                self.blink(color.red)
+                offset = Vec3(0, 0, 0) # Offset for the bullet position is straight in front of the gun
+                Bullet(position=self.world_position + self.forward * 1.5 + offset, direction=self.forward) # Creates a bullet entity at the position of the gun
+                self.last_shot_time = time() # Updates the last shot time to the current shot
+                return True # Tells that the gun was successfully shot
+            return False # No shot was fired due to fire rate restriction
+        except Exception as e:
+            print(f"Error in Gun shoot method: {e}")
+            return False # Returns false if there was an error in shooting
+        
+    def get_gun(self, player):
+        """Function to equip a gun to the player."""
+        try:
+            if player.gun:
+                player.gun.drop_gun(player)
+            self.parent = camera # Sets the parent of the gun to the camera
+            self.position = Vec3(0,-.75,.5) # Sets the position of the gun relative to the camera
+            player.gun = self # Assigns the gun to the player
+            self.collider = None # Removes the collider from the gun to prevent collisions
+        except Exception as e:
+            print(f"Error getting gun: {e}")
+
+    def drop_gun(self, player):
+        """Function to drop a gun from the player to the ground"""
+        try:
+            if self.parent == camera:
+                self.parent = scene
+                drop_point = player.position + Vec3(0, 1, 1)
+                self.position = drop_point
+                self.collider = 'box'
+        except Exception as e:
+            print(f"Error dropping gun: {e}")

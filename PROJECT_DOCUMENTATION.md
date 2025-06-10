@@ -55,7 +55,7 @@
 
 3. Simulation: After the user picks up the gun, they can press keys on their keyboard to spawn corresponding enemies, or an enemy to simulate an FPS experience.
 
-4. Game End: After the game has ended, (The user has died ingame) the game shows the scores of the player (How much they killed)
+4. Game End: After the game has ended, (The user has died ingame) the game shows the scores of the player (This may not be possible due to how Ursina renders certain game objects and deletes them)
 
 5. Loop: The user is then prompted to the menu screen again with the same 3 tabs, leading to a loop until they press the exit button, where they can view the tutorial or play before exiting.
 

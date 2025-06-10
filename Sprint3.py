@@ -1,5 +1,5 @@
 from ursina import * # Ursina Library
-from Sprint3Module import Gun, Shotgun, Player, menu, spawn_enemy, random_spawn_enemy # Importing function from my Sprint2Module
+from Sprint3Module import Gun, Shotgun, Minigun, Player, menu, spawn_enemy, random_spawn_enemy # Importing function from my Sprint2Module
 import random # Import random for spawning enemies randomly
 
 enemies_alive = [] # List to keep track of alive enemies
@@ -28,9 +28,11 @@ def start_game():
     gun = Gun(model='assets/gun.obj', color=color.gold, position=(3,0,3), scale=(.4,.4,.2))
     gun.on_click = lambda: gun.get_gun(player)
 
-    shotgun = Shotgun(model='assets/gun.obj', color=color.gold, position=(5,0,3), scale=(.4,.4,.2))
+    shotgun = Shotgun(model='assets/gun.obj', color=color.gold, position=(5, 0, 3), scale=(.4,.4,.2))
     shotgun.on_click = lambda: shotgun.get_gun(player)
 
+    minigun = Minigun(model = 'assets/gun.obj', color=color.gray, position=(7, 0, 3), scale=(.4,.4,.2))
+    minigun.on_click = lambda: minigun.get_gun(player)
 
     # Makes a hookshot from the inbuilt ursina.prefabs.first_person_controller module as well as the functions
     hookshot_target = Button(parent=scene, model='cube', color=color.brown, position=(4,5,5))
@@ -54,13 +56,21 @@ def start_game():
         """Function that handles the main input for the game, such as sprinting, shooting, and player/enemy damage."""
         player.sprint(key) # Sprint function
         player.override() # Prevents jumping when not grounded
-        if key == 'left mouse down':
-            if player.gun and player.gun.shoot(): # Checks if the player has a gun
-                for enemy in enemies_alive[:]: # Loops through all alive enemies
-                    if player.plrdmg(enemy, player.gun.damage): # Checks if the player kills the enemy
-                        enemies_alive.remove(enemy) # Removes the enemy from the alive list
-                        enemies_killed += 1 # Adds to the enemies killed count
-                        update_enemy_texts() # Updates the enemies text
+        if player.gun:
+            if isinstance(player.gun, Minigun) and held_keys['left mouse']:
+                if player.gun.shoot(): # Checks if the player has a gun
+                    for enemy in enemies_alive[:]: # Loops through all alive enemies
+                        if player.plrdmg(enemy, player.gun.damage): # Checks if the player kills the enemy
+                            enemies_alive.remove(enemy) # Removes the enemy from the alive list
+                            enemies_killed += 1 # Adds to the enemies killed count
+                            update_enemy_texts() # Updates the enemies text
+            elif key == 'left mouse down':
+                if player.gun.shoot():
+                    for enemy in enemies_alive[:]: # Loops through all alive enemies
+                        if player.plrdmg(enemy, player.gun.damage): # Checks if the player kills the enemy
+                            enemies_alive.remove(enemy) # Removes the enemy from the alive list
+                            enemies_killed += 1 # Adds to the enemies killed count
+                            update_enemy_texts() # Updates the enemies text
         if key == 'e': # Checks if the E key is pressed
             enemy = spawn_enemy(player) # Spawns an enemy
             enemies_alive.append(enemy) # Adds the enemy to the alive list
@@ -111,11 +121,18 @@ def survival_game():
         time_elapsed += time.dt
         time_text.text = f'Elapsed time: {int(time_elapsed)}'
 
-    def spawn_guns():
+    def spawn_shotgun():
             shotgun = Shotgun(model='assets/gun.obj', color=color.gold, position=(3,0,3), scale=(.4,.4,.2))
             shotgun.on_click = lambda: shotgun.get_gun(player)
+    
+    def spawn_minigun():
+            minigun = Minigun(model = 'assets/gun.obj', color=color.gray, position=(7, 0, 3), scale=(.4,.4,.2))
+            minigun.on_click = lambda: minigun.get_gun(player)
 
-    invoke(spawn_guns, delay = 10)
+
+    invoke(spawn_shotgun, delay = 200)
+
+    invoke(spawn_minigun, delay = 500)
 
     # Spawns enemies randomly and adds them to a list, and tracks the alive enemies
     def spawn_enemies_randomly():
@@ -142,13 +159,22 @@ def survival_game():
         """Function that handles the main input for the game, such as sprinting, shooting, and player/enemy damage."""
         player.sprint(key) # Sprint function
         player.override() # Prevents jumping when not grounded
-        if key == 'left mouse down': # Checks if the player has a gun
-            if player.gun and player.gun.shoot(): 
-                for enemy in enemies_alive[:]: # Loops through all alive enemies
-                    if player.plrdmg(enemy, player.gun.damage): # Checks if the player kills the enemy
-                        enemies_alive.remove(enemy) # Removes the enemy from the alive list
-                        enemies_killed += 1 # Adds to the enemies killed count
-                        update_enemy_texts() # Updates the enemies text
+        if player.gun:
+            if isinstance(player.gun, Minigun) and key == held_keys['left mouse']:
+                if player.gun.shoot():
+                    for enemy in enemies_alive[:]:
+                        if player.plrdmg(enemy, player.gun.damage): # Checks if the player kills the enemy
+                            enemies_alive.remove(enemy) # Removes the enemy from the alive list
+                            enemies_killed += 1 # Adds to the enemies killed count
+                            update_enemy_texts() # Updates the enemies text
+                        
+            elif key == 'left mouse down': # Checks if the player has a gun
+                if player.gun.shoot(): 
+                    for enemy in enemies_alive[:]: # Loops through all alive enemies
+                        if player.plrdmg(enemy, player.gun.damage): # Checks if the player kills the enemy
+                            enemies_alive.remove(enemy) # Removes the enemy from the alive list
+                            enemies_killed += 1 # Adds to the enemies killed count
+                            update_enemy_texts() # Updates the enemies text
 
 def instructions():
      """Initialises the instructions menu for the game, showing the user how to play the game and the controls."""
