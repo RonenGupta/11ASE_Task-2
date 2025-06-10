@@ -1,5 +1,5 @@
 from ursina import * # Ursina Library
-from Sprint3Module import Gun, Shotgun, Minigun, Player, menu, spawn_enemy, random_spawn_enemy # Importing function from my Sprint2Module
+from Sprint3Module import Gun, Shotgun, Minigun, Player, menu, spawn_enemy, random_spawn_enemy # Importing function from my Sprint3Module
 import random # Import random for spawning enemies randomly
 
 enemies_alive = [] # List to keep track of alive enemies
@@ -129,9 +129,8 @@ def survival_game():
             minigun = Minigun(model = 'assets/gun.obj', color=color.gray, position=(7, 0, 3), scale=(.4,.4,.2))
             minigun.on_click = lambda: minigun.get_gun(player)
 
-
+    # Spawns both guns at a set amount of time by calling the individual functions
     invoke(spawn_shotgun, delay = 200)
-
     invoke(spawn_minigun, delay = 500)
 
     # Spawns enemies randomly and adds them to a list, and tracks the alive enemies

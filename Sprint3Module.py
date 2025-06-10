@@ -8,8 +8,7 @@ def random_spawn_enemy(player):
     try:
         x = random.uniform(-50, 50) # Random x-coordinate
         z = random.uniform(-50, 50) # Random z-coordinate
-        enemy = Entity(model='cube', color=color.blue, collider = 'box', scale = (1, 2, 1), position=(x, 1, z), health=100) # Creates an enemy at a random position
-        enemy.collider.visible = True # Makes the collider visible
+        enemy = Entity(model='enemy.obj', collider = 'box', scale = (1, 2, 1), position=(x, 1, z), health=100) # Creates an enemy at a random position
         enemy.add_script(GroundedSmoothFollow(target=player, offset=[0, 0, 0], speed=10)) # Adds a script to follow the player
         return enemy # Returns the created enemy entity
     except Exception as e:
@@ -19,8 +18,7 @@ def random_spawn_enemy(player):
 def spawn_enemy(player):
     """Function to spawn an enemy at a given position with specified properties."""
     try:
-        enemy = Entity(model='cube', color=color.blue, collider = 'box', scale = (1, 2, 1), position=(5, 1, 5), health=100) # Creates an enemy entity
-        enemy.collider.visible = True # Makes the collider visible
+        enemy = Entity(model='enemy.obj', collider = 'box', scale = (1, 2, 1), position=(5, 1, 5), health=100) # Creates an enemy entity
         enemy.add_script(GroundedSmoothFollow(target=player, offset=[0, 0, 0], speed=10)) # Adds a script to follow the player
         return enemy # Returns the created enemy entity
     except Exception as e:
