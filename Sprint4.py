@@ -9,21 +9,20 @@ time_elapsed = 0 # Variable to keep track of time elapsed in survival mode
 def start_game():
     """Initialises the simulator gamemode, where the player can spawn enemies and shoot them, as well as use a hookshot."""
 
-    global ground, input, update
+    global ground, input, update # Global variables
 
     # Sync the game to the monitor's refresh rate, default 60hz to prevent screen tearing
     window.vsync = True
 
-    # Initialises the program to be defaulted to fullscreen and window.borderless helps with mouse movement issues on macOS
+    # Window.borderless helps with mouse movement issues on macOS
     window.borderless = False 
 
-    # Initialises the FirstPersonController class from the inbuilt ursina.prefabs.first_person_controller module as player, 
-    # and the Entity class from the ursina module as ground, as well as the sky class and healthbar from the ursina.prefabs.health_bar module as HealthBar.
+    # Initialises the Player class and the Entity class from the ursina module as ground, as well as the Sky class for the sky
     player = Player()
-    ground = Entity(model='plane', collider='box',scale = 128, texture ='grass')
+    ground = Entity(model='plane', collider='box', scale = 128, texture ='grass')
     Sky()
 
-    # Initialises the player having no gun and makes a gun from the Button class and puts it on the ground, and calls the get_gun function
+    # Gives the player no gun at the start, initialises 3 guns
     player.gun = None
     gun = Gun(model='assets/gun.obj', color=color.gold, position=(3,0,3), scale=(.4,.4,.2))
     gun.on_click = lambda: gun.get_gun(player)
@@ -34,7 +33,7 @@ def start_game():
     minigun = Minigun(model = 'assets/gun.obj', color=color.gray, position=(7, 0, 3), scale=(.4,.4,.2))
     minigun.on_click = lambda: minigun.get_gun(player)
 
-    # Makes a hookshot from the inbuilt ursina.prefabs.first_person_controller module as well as the functions
+    # Makes a hookshot allowing the player to traverse better
     hookshot_target = Button(parent=scene, model='cube', color=color.brown, position=(4,5,5))
     hookshot_target.on_click = Func(player.animate_position, hookshot_target.position, duration=.5, curve=curve.out_quad)
 
@@ -43,30 +42,31 @@ def start_game():
 
     def update_enemy_texts():
         """Updates the enemies text to show the number of enemies killed and alive."""
-        enemies_text.text = f'Enemies Killed: {enemies_killed} | Enemies Alive: {len(enemies_alive)}'
+        enemies_text.text = f'Enemies Killed: {enemies_killed} | Enemies Alive: {len(enemies_alive)}' # Updates the enemies text
 
     def update():
+        """Updates the conditional statement of hitting an enemy or not every frame"""
         for enemy in enemies_alive: # Loops through all alive enemies
-            if player.intersects(enemy).hit:
-                player.enmdmg(1)
+            if player.intersects(enemy).hit: # If the player hits any
+                player.enmdmg(1) # Damages the player by 1 
 
-    # Handles other functions such as sprinting, shooting, enemy damaging, and an override function to prevent buggy player
+    # Handles other input required functions such as sprinting, shooting
     def input(key):
         global enemies_killed, enemies_alive
         """Function that handles the main input for the game, such as sprinting, shooting, and player/enemy damage."""
         player.sprint(key) # Sprint function
         player.override() # Prevents jumping when not grounded
-        if player.gun:
-            if isinstance(player.gun, Minigun) and held_keys['left mouse']:
-                if player.gun.shoot(): # Checks if the player has a gun
+        if player.gun: # If the player has a gun
+            if isinstance(player.gun, Minigun) and held_keys['left mouse']: # If the gun is from the minigun class and the left mouse button is held down
+                if player.gun.shoot(): # If the player successfully shoots
                     for enemy in enemies_alive[:]: # Loops through all alive enemies
                         if player.plrdmg(enemy, player.gun.damage): # Checks if the player kills the enemy
                             enemies_alive.remove(enemy) # Removes the enemy from the alive list
                             enemies_killed += 1 # Adds to the enemies killed count
                             update_enemy_texts() # Updates the enemies text
-            elif key == 'left mouse down':
-                if player.gun.shoot():
-                    for enemy in enemies_alive[:]: # Loops through all alive enemies
+            elif key == 'left mouse down': # If the player only presses left mouse down once
+                if player.gun.shoot(): # If the player successfully shoots
+                    for enemy in enemies_alive[:]: # Loops through all alive enemies (Copy of the existing list)
                         if player.plrdmg(enemy, player.gun.damage): # Checks if the player kills the enemy
                             enemies_alive.remove(enemy) # Removes the enemy from the alive list
                             enemies_killed += 1 # Adds to the enemies killed count
@@ -89,8 +89,7 @@ def survival_game():
     # Time elapsed variable
     time_elapsed = 0
 
-    # Initialises the FirstPersonController class from the inbuilt ursina.prefabs.first_person_controller module as player, 
-    # and the Entity class from the ursina module as ground, as well as the sky class and healthbar from the ursina.prefabs.health_bar module as HealthBar.
+    # Initialises the Player class and the Entity class from the ursina module as ground, as well as the Sky class for the sky
     player = Player()
     ground = Entity(model='plane', collider='box',scale = 128, texture ='grass')
     Sky()
@@ -121,6 +120,7 @@ def survival_game():
         time_elapsed += time.dt
         time_text.text = f'Elapsed time: {int(time_elapsed)}'
 
+    # Spawns the shotgun and minigun when called
     def spawn_shotgun():
             shotgun = Shotgun(model='assets/gun.obj', color=color.gold, position=(3,0,3), scale=(.4,.4,.2))
             shotgun.on_click = lambda: shotgun.get_gun(player)
@@ -152,16 +152,16 @@ def survival_game():
                 player.enmdmg(1)
 
 
-    # Controls the main functions of the game
+    # Controls the main input functions of the game
     def input(key):
         global enemies_killed, enemies_alive
         """Function that handles the main input for the game, such as sprinting, shooting, and player/enemy damage."""
         player.sprint(key) # Sprint function
         player.override() # Prevents jumping when not grounded
-        if player.gun:
-            if isinstance(player.gun, Minigun) and key == held_keys['left mouse']:
-                if player.gun.shoot():
-                    for enemy in enemies_alive[:]:
+        if player.gun: # Checks if the player has a gun
+            if isinstance(player.gun, Minigun) and key == held_keys['left mouse']: # If the gun is from the minigun class and the left mouse button is held down
+                if player.gun.shoot(): # If the player successfully shoots the gun
+                    for enemy in enemies_alive[:]: # Loops through all alive enemies in a copy of the original list
                         if player.plrdmg(enemy, player.gun.damage): # Checks if the player kills the enemy
                             enemies_alive.remove(enemy) # Removes the enemy from the alive list
                             enemies_killed += 1 # Adds to the enemies killed count
