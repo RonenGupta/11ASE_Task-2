@@ -1,5 +1,5 @@
 from ursina import * # Ursina Library
-from Sprint3Module import Gun, Shotgun, Minigun, Player, menu, spawn_enemy, random_spawn_enemy # Importing function from my Sprint3Module
+from Sprint4Module import Gun, Shotgun, Minigun, Player, menu, spawn_enemy, random_spawn_enemy # Importing function from my Sprint4Module
 import random # Import random for spawning enemies randomly
 
 enemies_alive = [] # List to keep track of alive enemies
@@ -9,7 +9,7 @@ time_elapsed = 0 # Variable to keep track of time elapsed in survival mode
 def start_game():
     """Initialises the simulator gamemode, where the player can spawn enemies and shoot them, as well as use a hookshot."""
 
-    global ground, input, update # Global variables
+    global ground, input, update, border_bottom, border_top, border_left, border_right # Global variables
 
     # Sync the game to the monitor's refresh rate, default 60hz to prevent screen tearing
     window.vsync = True
@@ -20,6 +20,10 @@ def start_game():
     # Initialises the Player class and the Entity class from the ursina module as ground, as well as the Sky class for the sky
     player = Player()
     ground = Entity(model='plane', collider='box', scale = 128, texture ='grass')
+    border_top = Entity(model='cube', scale=(128, 10, 1), position=(0, 5, 64), collider='box', visible=False)
+    border_bottom = Entity(model='cube', scale=(128, 10, 1), position=(0, 5, -64), collider='box', visible=False)
+    border_left = Entity(model='cube', scale=(1, 10, 128), position=(-64, 5, 0), collider='box', visible=False)
+    border_right = Entity(model='cube', scale=(1, 10, 128), position=(64, 5, 0), collider='box', visible=False)
     Sky()
 
     # Gives the player no gun at the start, initialises 3 guns
@@ -78,7 +82,7 @@ def start_game():
 
 def survival_game():
     """Initialises the survival gamemode, where the player must survive for as long as possible against endless waves of enemies."""
-    global ground, input, time_elapsed, update, gun
+    global ground, input, time_elapsed, update, gun, border_bottom, border_top, border_left, border_right
 
     # Sync the game to the monitor's refresh rate, default 60hz to prevent screen tearing
     window.vsync = True
@@ -92,6 +96,10 @@ def survival_game():
     # Initialises the Player class and the Entity class from the ursina module as ground, as well as the Sky class for the sky
     player = Player()
     ground = Entity(model='plane', collider='box',scale = 128, texture ='grass')
+    border_top = Entity(model='cube', scale=(128, 10, 1), position=(0, 5, 64), collider='box', visible=False)
+    border_bottom = Entity(model='cube', scale=(128, 10, 1), position=(0, 5, -64), collider='box', visible=False)
+    border_left = Entity(model='cube', scale=(1, 10, 128), position=(-64, 5, 0), collider='box', visible=False)
+    border_right = Entity(model='cube', scale=(1, 10, 128), position=(64, 5, 0), collider='box', visible=False)
     Sky()
 
     # Initialises the player having a gun and makes a gun from the Button class and calls the get_gun function instantly
@@ -139,7 +147,7 @@ def survival_game():
         enemy = random_spawn_enemy(player)
         enemies_alive.append(enemy)
         update_enemy_texts()
-        invoke(spawn_enemies_randomly, delay=random.uniform(5, 12))
+        invoke(spawn_enemies_randomly, delay=random.uniform(1, 7))
 
     # Calls the function
     spawn_enemies_randomly()
