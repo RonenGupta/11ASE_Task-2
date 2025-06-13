@@ -170,7 +170,7 @@ class Gun(Button):
             if player.gun: # Checks if the player has a gun
                 player.gun.drop_gun(player) # Drops the players current gun using the drop_gun function
             self.parent = camera # Sets the parent of the new gun to the camera
-            self.position = Vec3(0,-.75,.5) # Sets the position of the new gun relative to the camera
+            self.position = Vec3(0,-.80,1) # Sets the position of the new gun relative to the camera
             player.gun = self # Assigns the new gun to the player
             self.collider = None # Removes the collider from the new gun to prevent collisions
         except Exception as e: # Error handling
@@ -279,7 +279,7 @@ class Minigun(Gun):
 
 class HealthPack(Entity):
     def __init__(self, position, heal_amount = 25):
-        super().__init__(parent=scene, model='cube', color = color.green, collider='box', position=position, scale=(0.5, 0.5, 0.5))
+        super().__init__(parent=scene, model='assets/HealthPack.Obj', texture = "assets/HealthPack_Albedo.tga", collider='box', position=position, scale=(0.02, 0.05, -0.02))
         self.heal_amount = heal_amount
 
     def heal(self):

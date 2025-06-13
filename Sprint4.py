@@ -29,7 +29,7 @@ def start_game():
 
     # Gives the player no gun at the start, initialises 3 guns
     player.gun = None
-    gun = Gun(model='assets/gun.obj', color=color.gold, position=(3,0,3), scale=(.4,.4,.2))
+    gun = Gun(model='assets/glock.obj', color=color.gray, position=(3,0,3), scale=(.2,.2,.1))
     gun.on_click = lambda: gun.get_gun(player)
 
     shotgun = Shotgun(model='assets/gun.obj', color=color.gold, position=(5, 0, 3), scale=(.4,.4,.2))
@@ -111,7 +111,7 @@ def survival_game():
     Sky()
 
     # Initialises the player having a gun and makes a gun from the Button class and calls the get_gun function instantly
-    gun = Gun(model='assets/gun.obj', color=color.gold, position=(3,0,3), scale=(.4,.4,.2))
+    gun = Gun(model='assets/glock.obj', color=color.gray, position=(3,0,3), scale=(.2,.2,.2))
     gun.on_click = lambda: gun.get_gun(player)
 
     # Makes a hookshot from the inbuilt ursina.prefabs.first_person_controller module as well as the functions
@@ -168,6 +168,7 @@ def survival_game():
         healthpacks_alive.append(healthpack)
         invoke(spawn_healthpack_randomly, delay=random.uniform(10, 20))
 
+    # Calls the function
     spawn_healthpack_randomly()
 
     # Updates the time every frame, using the unique update function in Ursina
