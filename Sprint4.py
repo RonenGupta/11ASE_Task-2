@@ -1,8 +1,9 @@
 from ursina import * # Ursina Library
-from Sprint4Module import Gun, Shotgun, Minigun, Player, menu, spawn_enemy, random_spawn_enemy # Importing function from my Sprint4Module
+from Sprint4Module import Gun, Shotgun, Minigun, Player, HealthPack, menu, spawn_enemy, random_spawn_enemy # Importing classes and functions from my Sprint4Module
 import random # Import random for spawning enemies randomly
 
 enemies_alive = [] # List to keep track of alive enemies
+healthpacks_alive = [] # List to keep track of healthpacks spawned
 enemies_killed = 0 # Variable to keep track of killed enemies
 time_elapsed = 0 # Variable to keep track of time elapsed in survival mode
 
@@ -53,6 +54,10 @@ def start_game():
         for enemy in enemies_alive: # Loops through all alive enemies
             if player.intersects(enemy).hit: # If the player hits any
                 player.enmdmg(1) # Damages the player by 1 
+        for healthpack in healthpacks_alive[:]:
+             if healthpack.intersects(scene.player).hit:
+                if healthpack.heal():
+                    healthpacks_alive.remove(healthpack)
 
     # Handles other input required functions such as sprinting, shooting
     def input(key):
@@ -79,6 +84,9 @@ def start_game():
             enemy = spawn_enemy(player) # Spawns an enemy
             enemies_alive.append(enemy) # Adds the enemy to the alive list
             update_enemy_texts() # Updates the enemies text
+        if key == 'r':
+            healthpack = HealthPack(position=(8, 1, 5))
+            healthpacks_alive.append(healthpack)
 
 def survival_game():
     """Initialises the survival gamemode, where the player must survive for as long as possible against endless waves of enemies."""
@@ -152,12 +160,26 @@ def survival_game():
     # Calls the function
     spawn_enemies_randomly()
 
+    def spawn_healthpack_randomly():
+        """Spawns healthpacks randomly and adds them to the healthpacks_alive list."""
+        x = random.uniform(-50, 50) # Random x-coordinate
+        z = random.uniform(-50, 50) # Random z-coordinate
+        healthpack = HealthPack(position=(x, 1, z))
+        healthpacks_alive.append(healthpack)
+        invoke(spawn_healthpack_randomly, delay=random.uniform(10, 20))
+
+    spawn_healthpack_randomly()
+
     # Updates the time every frame, using the unique update function in Ursina
     def update():
         update_time_elapsed_texts()
-        for enemy in enemies_alive: # Loops through all alive enemies
+        for enemy in enemies_alive[:]: # Loops through all alive enemies
             if player.intersects(enemy).hit:
                 player.enmdmg(1)
+        for healthpack in healthpacks_alive[:]:
+            if healthpack.intersects(scene.player).hit:
+                if healthpack.heal():
+                    healthpacks_alive.remove(healthpack)
 
 
     # Controls the main input functions of the game
@@ -186,8 +208,8 @@ def survival_game():
 def instructions():
      """Initialises the instructions menu for the game, showing the user how to play the game and the controls."""
      tutorial_bg = Entity(parent=camera.ui, model='quad', scale=(0.7, 0.5), color=color.dark_gray, z=1)
-     maingamemodes = Text("How to play:\n" "Survival Gamemode: Survive waves of enemies and live for as long as you can!\n" "Freeplay Gamemode: Spawn enemies with the E key, use different guns, and simulate FPS!\n" "Exit: Exits the game (See ya!)", parent=tutorial_bg, position=(-0.85, 0.25), scale=1.75, color=color.white)
-     maincontrols = Text("Main Controls:\n" "WASD: Move the player around!\n" "Left mouse button: Shoot the gun!\n" "Shift: Sprint like the wind!\n" "E Key (Only in Freeplay): Spawns Enemies!", parent=tutorial_bg, position=(-0.85, -0.25), scale=1.75, color=color.white)
+     maingamemodes = Text("How to play:\n" "Survival Gamemode: Survive waves of enemies and live for as long as you can!\n" "Freeplay Gamemode: Spawn enemies with the E key\n or spawn health packs with the R key,\n use different guns, and simulate FPS!\n" "Exit: Exits the game (See ya!)", parent=tutorial_bg, position=(-0.85, 0.25), scale=1.75, color=color.white)
+     maincontrols = Text("Main Controls:\n" "WASD: Move the player around!\n" "Left mouse button: Shoot the gun!\n" "Shift: Sprint like the wind!\n" "E Key (Only in Freeplay): Spawns Enemies!\n" "R Key (Only in Freeplay): Spawns Health Packs!", parent=tutorial_bg, position=(-0.85, -0.25), scale=1.75, color=color.white)
      exit_button = Button(text="Exit", parent=tutorial_bg, position=(-1.1, 0.91), scale=(0.1, 0.05), color=color.red, on_click= lambda: (destroy(maincontrols), destroy(maingamemodes), destroy(tutorial_bg), destroy(exit_button), menu(start_game, survival_game, instructions)))
 
 

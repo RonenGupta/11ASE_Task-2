@@ -8,7 +8,8 @@ def random_spawn_enemy(player):
     try:
         x = random.uniform(-50, 50) # Random x-coordinate
         z = random.uniform(-50, 50) # Random z-coordinate
-        enemy = Entity(model='cube', color=color.blue, collider = 'box', scale = (1, 2, 1), position=(x, 1, z), health=100) # Creates an enemy at a random position
+        randhealth = random.randint(75, 200)
+        enemy = Entity(model='cube', color=color.blue, collider = 'box', scale = (1, 2, 1), position=(x, 1, z), health=randhealth) # Creates an enemy at a random position
         enemy.add_script(GroundedSmoothFollow(target=player, offset=[0, 0, 0], speed=10)) # Adds a script to follow the player using GroundedSmoothFollow
         return enemy # Returns the created enemy entity
     except Exception as e: # Error handling
@@ -75,6 +76,7 @@ class Player(FirstPersonController):
         super().__init__(model='cube', color=color.clear, speed=10, scale_y=2, collider='box', **kwargs) # Uses super to set attributes to certain values and store in dict using **kwargs
         self.gun = None # Initialises the player to not have a gun
         self.healthbar = HealthBar(bar_color=color.lime.tint(-.25), roundness=.5, highlight_color=color.yellow.tint(-.2)) # Initialises a healthbar for the player
+        scene.player = self
 
     # Sprint method for the class
     def sprint(self, key):
@@ -274,3 +276,25 @@ class Minigun(Gun):
                 self.collider = 'box' # Sets collider for the gun
         except Exception as e: # Error handling
             print(f"Error dropping gun: {e}")
+
+class HealthPack(Entity):
+    def __init__(self, position, heal_amount = 25):
+        super().__init__(parent=scene, model='cube', color = color.green, collider='box', position=position, scale=(0.5, 0.5, 0.5))
+        self.heal_amount = heal_amount
+
+    def heal(self):
+        """Checks if the player hits the healthpack, and if so heals them"""
+        try:
+            scene.player.healthbar.value = min(scene.player.healthbar.value + self.heal_amount, 100)
+            Audio('assets/laser_sound.wav')
+            destroy(self)
+            print(f"Sucessfully healed! Health: {scene.player.healthbar.value}")
+            return True
+        except Exception as e:
+            print(f"Error in heal method: {e}")
+            return False
+
+
+
+            
+            
