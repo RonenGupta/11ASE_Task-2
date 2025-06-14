@@ -29,13 +29,13 @@ def start_game():
 
     # Gives the player no gun at the start, initialises 3 guns
     player.gun = None
-    gun = Gun(model='assets/glock.obj', color=color.gray, position=(3,0,3), scale=(.2,.2,.1))
+    gun = Gun(model='assets/glock.obj', color=color.gray, position=(3,1,3), scale=(.2,.2,.1))
     gun.on_click = lambda: gun.get_gun(player)
 
-    shotgun = Shotgun(model='assets/gun.obj', color=color.gold, position=(5, 0, 3), scale=(.4,.4,.2))
+    shotgun = Shotgun(model='assets/gun.obj', color=color.gold, position=(5, 1, 3), scale=(.4,.4,.2))
     shotgun.on_click = lambda: shotgun.get_gun(player)
 
-    minigun = Minigun(model = 'assets/gun.obj', color=color.gray, position=(7, 0, 3), scale=(.4,.4,.2))
+    minigun = Minigun(model = 'assets/Minigun_.obj', color=color.gray, position=(7, 1, 3), scale=(.05,.05,.025))
     minigun.on_click = lambda: minigun.get_gun(player)
 
     # Makes a hookshot allowing the player to traverse better
@@ -142,7 +142,7 @@ def survival_game():
             shotgun.on_click = lambda: shotgun.get_gun(player)
     
     def spawn_minigun():
-            minigun = Minigun(model = 'assets/gun.obj', color=color.gray, position=(7, 0, 3), scale=(.4,.4,.2))
+            minigun = Minigun(model = 'assets/Minigun_.obj', color=color.gray, position=(7, 0, 3), scale=(.4,.4,.2))
             minigun.on_click = lambda: minigun.get_gun(player)
 
     # Spawns both guns at a set amount of time by calling the individual functions

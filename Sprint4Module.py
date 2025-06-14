@@ -9,7 +9,7 @@ def random_spawn_enemy(player):
         x = random.uniform(-50, 50) # Random x-coordinate
         z = random.uniform(-50, 50) # Random z-coordinate
         randhealth = random.randint(75, 200)
-        enemy = Entity(model='cube', color=color.blue, collider = 'box', scale = (1, 2, 1), position=(x, 1, z), health=randhealth) # Creates an enemy at a random position
+        enemy = Entity(model='assets/AlienGrub1.obj', texture='assets/AlienGrub1_Base_Diffuse.jpg', collider = 'box', scale = (0.025, 0.05, 0.025), position=(x, 1, z), health=randhealth) # Creates an enemy at a random position
         enemy.add_script(GroundedSmoothFollow(target=player, offset=[0, 0, 0], speed=10)) # Adds a script to follow the player using GroundedSmoothFollow
         return enemy # Returns the created enemy entity
     except Exception as e: # Error handling
@@ -19,7 +19,7 @@ def random_spawn_enemy(player):
 def spawn_enemy(player):
     """Function to spawn an enemy at a given position with specified properties."""
     try:
-        enemy = Entity(model='cube', color=color.blue, collider = 'box', scale = (1, 2, 1), position=(5, 1, 5), health=100) # Creates an enemy entity
+        enemy = Entity(model='assets/AlienGrub1.obj', texture='assets/AlienGrub1_Base_Diffuse.jpg', collider = 'box', scale = (0.025, 0.05, 0.025), position=(5, 1, 5), health=100) # Creates an enemy entity
         enemy.add_script(GroundedSmoothFollow(target=player, offset=[0, 0, 0], speed=10)) # Adds a script to follow the player using GroundedSmoothFollow
         return enemy # Returns the created enemy entity
     except Exception as e: # Error handling
@@ -260,7 +260,7 @@ class Minigun(Gun):
             if player.gun: # If the player has a gun
                 player.gun.drop_gun(player) # Drops the players old gun
             self.parent = camera # Sets the parent of the new gun to the camera
-            self.position = Vec3(0,-.75,.5) # Sets the position of the new gun relative to the camera
+            self.position = Vec3(0,-1.10,.5) # Sets the position of the new gun relative to the camera
             player.gun = self # Assigns the new gun to the player
             self.collider = None # Removes the collider from the new gun to prevent collisions
         except Exception as e:
