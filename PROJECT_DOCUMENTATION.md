@@ -64,6 +64,17 @@
 ***
 ## Design
 ***
+
+### Storyboard
+***
+![Software Engineering Storyboard Ass 2](images/Storyboard.png)
+***
+### Data Flow Diagram
+![Software Engineering Data Flow Diagram Ass 2](images/DFD.png)
+***
+### Gantt Chart
+- Link for Gantt Chart: https://docs.google.com/spreadsheets/d/1Wj5dsDAvNwoj5kCc8Sz1OCvqK_soK0-2oWMVvUWk1sU/edit?gid=0#gid=0
+***
 ## Build and Test
 ***
 ### Sprint 1 - FPS Text Based GUI Modularized with a Wave Based Gamemode
@@ -214,6 +225,110 @@ main()
 ***
 ## Design
 ***
+### Structure Chart
+***
+- Structure Chart Link: https://lucid.app/lucidchart/a7502c93-40f1-4177-8ae0-81a087ce42e5/edit?viewport_loc=-3977%2C-747%2C7521%2C4361%2C0_0&invitationId=inv_97050906-2981-4845-a7dc-ff05265b3f41
+***
+
+### Algorithms
+***
+- Pseudocode for Main Routine
+```python
+BEGIN MAIN ROUTINE
+        INPUT OPTION/User_Input
+            DISPLAY MAIN MENU WITH OPTIONS: (menu)
+            - Simulator Game
+            - Survival Game
+            - Tutorial
+            - Exit Game
+
+            CHOOSE OPTION/User_Input
+
+            IF OPTION = Simulator Game THEN
+                ENTER Simulator MODE (start_game)
+                    WHILE HEALTH > 0 DO
+                        MOVE CHARACTER WITH WASD (FirstPersonController Class)
+                        PICK UP/ SWAP GUN WITH LEFT MOUSE BUTTON (get_gun)
+                        SPAWN ENEMY BY PRESSING E (spawn_enemy)
+                        SHOOT GUN WITH LEFT MOUSE BUTTON AND INFLICT DAMAGE TO ENEMIES (shoot)(plrdmg)
+                        SPRINT WITH SHIFT KEY (sprint)
+                        CHECK FOR ENEMY DAMAGE (enmdmg)
+                        PREVENT PLAYER FROM NOCLIPPING IN GROUND OR JUMPING INFINITELY (override)
+                    END WHILE
+                    EXIT GAME
+            ENDIF
+            
+            ELSE IF OPTION = Survival Game THEN
+                ENTER Survival MODE (survival_game)
+                    WHILE HEALTH > 0 DO
+                        MOVE CHARACTER WITH WASD (FirstPersonController Class)
+                        PICK UP/ SWAP GUN WITH LEFT MOUSE BUTTON (get_gun)
+                        FACE AUTOMATIC ENEMY WAVES (random_spawn_enemy) (spawn_enemies_randomly)
+                        SHOOT GUN WITH LEFT MOUSE BUTTON AND INFLICT DAMAGE TO ENEMIES (shoot)(plrdmg)
+                        SPRINT WITH SHIFT KEY (sprint)
+                        VIEW ELAPSED TIME AND ENEMIES KILLED/ALIVE (update_time_elapsed_texts)
+                        CHECK FOR ENEMY DAMAGE (enmdmg)
+                        PREVENT PLAYER FROM NOCLIPPING IN GROUND OR JUMPING INFINITELY (override)
+                    END WHILE
+                    EXIT GAME
+            ENDIF
+
+            ELSE IF OPTION = Tutorial THEN
+                WHILE NOT EXITED OUT OF TUTORIAL
+                    VIEW TUTORIAL (instructions)
+                    READ HOW TO PLAY AND CONTROLS
+                ENDWHILE
+                RETURN TO MAIN MENU (exit_button)
+            ENDIF
+
+            ELSE IF OPTION = Exit Game THEN
+                EXIT GAME (application.quit())
+            ENDIF
+END MAIN ROUTINE
+```
+
+***
+- Pseudocode for 1st Subroutine: get_gun(player, gun)
+```python
+BEGIN SUBROUTINE get_gun(player, gun)
+    TRY FOLLOWING CODE:
+        SET THE GUN PARENT TO THE CAMERA
+        SET THE GUN POSITION TO (0, -0.75, 0.5)
+        ASSIGN THE GUN TO THE PLAYER GUN ATTRIBUTE
+        DISABLE THE GUN COLLIDER (Set to None)
+    EXCEPT ANY EXCEPTIONS/ERRORS IN CODE AS e:
+        PRINT "Error getting gun: " + e
+    ENDTRY
+END SUBROUTINE get_gun(player, gun)
+
+```
+***
+- Pseudocode for 2nd Subroutine: Sprint(player, key)
+```python
+BEGIN SUBROUTINE Sprint(player, key)
+    TRY FOLLOWING CODE:
+        IF KEY PRESSED = "shift" THEN
+            SET PLAYER SPEED ATTRIBUTE TO 20
+        ELSE IF KEY PRESSED = "shift up" THEN
+            SET PLAYER SPEED ATTRIBUTE TO 10
+        END IF
+    EXCEPT ANY EXCEPTIONS/ERRORS IN CODE AS e:
+        PRINT "Error in sprint function:" + e
+    ENDTRY
+END SUBROUTINE Sprint(player, key)
+```
+***
+
+- Flowchart Link for Main Routine: https://lucid.app/lucidchart/7378e435-dfa0-4ff1-99c0-97a8c9b4f082/edit?viewport_loc=-1284%2C-3175%2C4265%2C2473%2C0_0&invitationId=inv_41a6d45c-c485-4775-b72f-11b6179271bc
+
+***
+
+- Flowchart Link for 1st Subroutine: https://lucid.app/lucidchart/492bef2d-3dce-4634-8be1-252f38edce14/edit?viewport_loc=-268%2C17%2C1616%2C1891%2C0_0&invitationId=inv_1a4c9659-a7fd-418b-9811-d407df376529
+
+***
+
+- Flowchart Link for 2nd Subroutine: https://lucid.app/lucidchart/136f14b2-eca1-4aad-a27a-23c5967c5a85/edit?viewport_loc=-424%2C-5%2C2009%2C2351%2C0_0&invitationId=inv_d9180f6a-e5e6-4fba-a546-3672393d58e7
+
 ## Build and Test
 ***
 
