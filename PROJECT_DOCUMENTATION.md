@@ -1232,6 +1232,11 @@ app.run()
 - It would be quite simple. Replacing current models will require little to no effort, and map design would simply require me to add e.g barriers to walls and possibly a different sky texture such as red for the signature "Doom Hell" and the map texture can also correspond to that as well. Healthpacks can be added in as a seperate class, affiliated with the player class due to modifying the player's healthbar which is a composition of the Player class as shown in my previous UML Class Diagram.
 ***
 ### Update Structure Chart/Class Diagram as Required
+- Updated UML Class Diagram
+![Software Engineering UML Class Diagram 2 Ass 2](images/UMLCD2.png)
+- Link for UML Class Diagram 2: https://lucid.app/lucidchart/f8c1e433-c67e-454b-af16-8329f007d311/edit?invitationId=inv_8ea55e2c-9e66-480d-97b6-c1501f881cf8
+
+- Updated Structure Chart
 
 ***
 ## Build and Test and Launch

@@ -51,8 +51,8 @@ class Bullet(Entity):
     def __init__(self, position, direction): # Position and direction are passed as parameters
         try:
             super().__init__(parent=scene, model='cube', scale=1, color=color.black, collider='box', position = position) # Initializes the bullet entity with a cube model, black color, and box collider
-            self.direction = direction.normalized() # Sets the direction of the bullet
-            self.look_at(position + self.direction) # Makes the bullet look at the position it is moving towards
+            self._direction = direction.normalized() # Sets the direction of the bullet
+            self.look_at(position + self._direction) # Makes the bullet look at the position it is moving towards
         except Exception as e: # Error handling
             print(f"Error initializing Bullet: {e}")
 
@@ -60,7 +60,7 @@ class Bullet(Entity):
     def update(self):
         """Updates the bullets position and checks for collisions."""
         try:
-            self.position += self.direction * 1000 * time.dt # Moves the bullet in the direction it is facing
+            self.position += self._direction * 1000 * time.dt # Moves the bullet in the direction it is facing
             hit_info = self.intersects() # Checks for collisions with other entities
             if hit_info.hit: # If the bullet hits something
                 destroy(self) # Destroy the bullet if it hits something
@@ -74,8 +74,11 @@ class Bullet(Entity):
 class Player(FirstPersonController):
     def __init__(self, **kwargs):
         super().__init__(model='cube', color=color.clear, speed=10, scale_y=2, collider='box', **kwargs) # Uses super to set attributes to certain values and store in dict using **kwargs
-        self.gun = None # Initialises the player to not have a gun
-        self.healthbar = HealthBar(bar_color=color.lime.tint(-.25), roundness=.5, highlight_color=color.yellow.tint(-.2)) # Initialises a healthbar for the player
+        self._speed = 10
+        self._gun = None # Initialises the player to not have a gun
+        self.gun = self._gun
+        self._healthbar = HealthBar(bar_color=color.lime.tint(-.25), roundness=.5, highlight_color=color.yellow.tint(-.2)) # Initialises a healthbar for the player
+        self.healthbar=self._healthbar
         scene.player = self
 
     # Sprint method for the class
@@ -83,9 +86,10 @@ class Player(FirstPersonController):
         """Function to handle sprinting mechanics for the player."""
         try:
             if key == "shift": # Checks if the shift key is pressed
-                self.speed = 20 # Sets player speed to 20 when sprinting
+                self._speed = 20 # Sets player speed to 20 when sprinting
             elif key == "shift up": # Checks if the shift key is released
-                self.speed = 10 # Resets player speed to 10 when not sprinting
+                self._speed = 10 # Resets player speed to 10 when not sprinting
+            self.speed = self._speed
         except Exception as e: # Error handling
             print(f"Error in sprint function: {e}")
 
@@ -103,8 +107,8 @@ class Player(FirstPersonController):
     def enmdmg(self, amount):
         """Function to handle player damage from enemies."""
         try:
-            self.healthbar.value -= amount # Subtracts the healthbar amount
-            if self.healthbar.value <= 0: # If the healthbar amount is less than or equal to 0
+            self._healthbar.value -= amount # Subtracts the healthbar amount
+            if self._healthbar.value <= 0: # If the healthbar amount is less than or equal to 0
                 quit() # Quit the game as the player has died
         except Exception as e: # Error handling
             print(f"Error in enmdmg function: {e}")
@@ -144,20 +148,20 @@ class Gun(Button):
     def __init__(self, model, color, position, scale, damage=50, fire_rate=0.5, **kwargs): # Sets some attributes in a dict using **kwargs and defines some beforehand
         super().__init__(parent=scene, model=model, color=color, origin_y=-.5, position=position, scale=scale, **kwargs) # Values added to keys defined in attributes beforehand using super avoiding redundancy
         # New attributes for the gun
-        self.damage = damage 
-        self.fire_rate = fire_rate
-        self.last_shot_time = 0 
+        self._damage = damage 
+        self._fire_rate = fire_rate
+        self._last_shot_time = 0 
 
     def shoot(self):
         """Shoots the players gun."""
         from time import time # Time to check the last shot time and maintain firerate
         try:
-            if time() - self.last_shot_time >= self.fire_rate: # Checks if the time since the last shot is greater than or equal to the fire rate
+            if time() - self._last_shot_time >= self._fire_rate: # Checks if the time since the last shot is greater than or equal to the fire rate
                 Audio("assets/laser_sound.wav") # Play audio
                 self.blink(color.red) # Blinks the gun red
                 offset = Vec3(0, 0, 0) # Offset for the bullet position is straight in front of the gun
                 Bullet(position=self.world_position + self.forward * 1.5 + offset, direction=self.forward) # Creates a bullet entity at the position of the gun
-                self.last_shot_time = time() # Updates the last shot time to the current shot
+                self._last_shot_time = time() # Updates the last shot time to the current shot
                 return True # Tells that the gun was successfully shot
             return False # No shot was fired due to fire rate restriction
         except Exception as e: # Error handling
@@ -197,15 +201,15 @@ class Shotgun(Gun):
         """Shoots the players gun."""
         from time import time
         try:
-            if time() - self.last_shot_time >= self.fire_rate: # Checks if the time since the last shot is greater than or equal to the fire rate
+            if time() - self._last_shot_time >= self._fire_rate: # Checks if the time since the last shot is greater than or equal to the fire rate
                 Audio("assets/laser_sound.wav") # Plays audio
                 self.blink(color.orange) # Blinks the gun orange
                 random_damage = random.randint(90, 120) # Random damage variable which resets every time we check fire rate
-                self.damage = random_damage # Sets damage to random damage
+                self._damage = random_damage # Sets damage to random damage
                 for i in range(5):  # Spawns 5 bullets
                     offset = Vec3(0, 0, i * 0.0001)  # Offset of the bullets
                     Bullet(position=self.world_position + self.forward * 1.5 + offset, direction=self.forward + Vec3(random.uniform(-0.02, 0.02), 0, random.uniform(-0.02, 0.02))) # Random coordinates where the shotgun shoots
-                self.last_shot_time = time() # Updates the last shot time to the current shot
+                self._last_shot_time = time() # Updates the last shot time to the current shot
                 return True # Tells that the gun was successfully shot
             return False # No shot was fired due to fire rate restriction
         except Exception as e: # Error handling
@@ -242,12 +246,12 @@ class Minigun(Gun):
     def shoot(self):
         from time import time
         try:
-            if time() - self.last_shot_time >= self.fire_rate: # Checks if the time since the last shot is greater than or equal to the fire rate
+            if time() - self._last_shot_time >= self._fire_rate: # Checks if the time since the last shot is greater than or equal to the fire rate
                 Audio("assets/laser_sound.wav") # Plays Audio
                 self.blink(color.red) # Blinks gun red
                 offset = Vec3(0, 0, 0) # Offset for the bullet position is straight in front of the gun
                 Bullet(position=self.world_position + self.forward * 1.5 + offset, direction=self.forward) # Creates a bullet entity at the position of the gun
-                self.last_shot_time = time() # Updates the last shot time to the current shot
+                self._last_shot_time = time() # Updates the last shot time to the current shot
                 return True # Tells that the gun was successfully shot
             return False # No shot was fired due to fire rate restriction
         except Exception as e:
@@ -280,12 +284,12 @@ class Minigun(Gun):
 class HealthPack(Entity):
     def __init__(self, position, heal_amount = 25):
         super().__init__(parent=scene, model='assets/HealthPack.Obj', texture = "assets/HealthPack_Albedo.tga", collider='box', position=position, scale=(0.02, 0.05, -0.02))
-        self.heal_amount = heal_amount
+        self._heal_amount = heal_amount
 
     def heal(self):
         """Checks if the player hits the healthpack, and if so heals them"""
         try:
-            scene.player.healthbar.value = min(scene.player.healthbar.value + self.heal_amount, 100)
+            scene.player.healthbar.value = min(scene.player.healthbar.value + self._heal_amount, 100)
             Audio('assets/laser_sound.wav')
             destroy(self)
             print(f"Sucessfully healed! Health: {scene.player.healthbar.value}")
