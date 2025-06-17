@@ -75,7 +75,7 @@
 ### Gantt Chart
 - Link for Gantt Chart: https://docs.google.com/spreadsheets/d/1Wj5dsDAvNwoj5kCc8Sz1OCvqK_soK0-2oWMVvUWk1sU/edit?gid=0#gid=0
 ***
-## Build and Test
+## Build and Test and Launch
 ***
 ### Sprint 1 - FPS Text Based GUI Modularized with a Wave Based Gamemode
 
@@ -329,7 +329,7 @@ END SUBROUTINE Sprint(player, key)
 
 - Flowchart Link for 2nd Subroutine: https://lucid.app/lucidchart/136f14b2-eca1-4aad-a27a-23c5967c5a85/edit?viewport_loc=-424%2C-5%2C2009%2C2351%2C0_0&invitationId=inv_d9180f6a-e5e6-4fba-a546-3672393d58e7
 
-## Build and Test
+## Build and Test and Launch
 ***
 
 ### Sprint 2 Ursina FPS Game with GUI Modularized with a survival gamemode
@@ -700,7 +700,12 @@ app.run()
 ***
 ## Design
 ***
-## Build and Test
+### UML Class Diagram
+***
+![Software Engineering UML Class Diagram Ass 2](images/UMLCD1.png)
+- Link for UML Class Diagram: https://lucid.app/lucidchart/7a43b1b1-4a0f-4c7d-b471-31365a016df0/edit?viewport_loc=-2663%2C-275%2C3489%2C2537%2C0_0&invitationId=inv_af2ebc14-2abf-4cab-ab10-330983666845
+***
+## Build and Test and Launch
 ***
 ### Sprint 3 Ursina FPS Game with more features, already containing classes and also added functions as class methods
 ***
@@ -1211,4 +1216,4 @@ app.run()
 
 3. The code demonstrates good readability and maintainability. Classes are not only modularized from the main gameflow, but also included inside these classes are functions which I implemented into these class methods for readability and to avoid cluttering, as well as future maintainability. Docstrings and comments explain the purpose of each method inside the classes. From Sprint 2, error handling remains the same. Overall, the code is clean, well documented, and easy to maintain.
 
-4. Several improvements can be made in Sprint 4. As I have already implemented OOP fundamentals and also added many features regarding game logic, the next sprint will be mostly about touch-ups and another feature to enhance the players experience: Shaders and/or proper models. This would allow for user engagement. These enhancements will allow for a polished, complete product incorporating both logic and creativity.
+4. Several improvements can be made in Sprint 4. As I have already implemented OOP fundamentals and also added many features regarding game logic, the next sprint will be mostly about touch-ups and another feature to enhance the players experience: Shaders and/or proper models. This would allow for user engagement. These enhancements will allow for a polished, complete product incorporating both logic and creativity. (Forgot to mention, but will also implement private, public and protected attributes and methods to further secure encapsulation).
