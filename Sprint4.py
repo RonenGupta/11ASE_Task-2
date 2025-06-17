@@ -166,7 +166,7 @@ def survival_game():
         z = random.uniform(-50, 50) # Random z-coordinate
         healthpack = HealthPack(position=(x, 1, z))
         healthpacks_alive.append(healthpack)
-        invoke(spawn_healthpack_randomly, delay=random.uniform(10, 20))
+        invoke(spawn_healthpack_randomly, delay=random.uniform(20, 50))
 
     # Calls the function
     spawn_healthpack_randomly()

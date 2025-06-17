@@ -1217,3 +1217,21 @@ app.run()
 3. The code demonstrates good readability and maintainability. Classes are not only modularized from the main gameflow, but also included inside these classes are functions which I implemented into these class methods for readability and to avoid cluttering, as well as future maintainability. Docstrings and comments explain the purpose of each method inside the classes. From Sprint 2, error handling remains the same. Overall, the code is clean, well documented, and easy to maintain.
 
 4. Several improvements can be made in Sprint 4. As I have already implemented OOP fundamentals and also added many features regarding game logic, the next sprint will be mostly about touch-ups and another feature to enhance the players experience: Shaders and/or proper models. This would allow for user engagement. These enhancements will allow for a polished, complete product incorporating both logic and creativity. (Forgot to mention, but will also implement private, public and protected attributes and methods to further secure encapsulation).
+***
+
+# Sprint 4
+***
+## Design
+***
+### Identify Potential Enhancements
+***
+- Enhancements or features I could add are new models, shaders, and an increasingly better map design. These will allow for further user engagement and the synchronisation of logic and creative based application. I will also implement private, public, and protected attributes and methods in order to secure further encapsulation, and the major feature I will incorporate will be healthpacks, a way for players to heal after sustaining damage. These will spawn periodically on the map healing 25 HP each, and will spawn rarely, giving the player a sincere challenge. Otherwise in the simulator gamemode, this will simply be implemented as a spawning feature using the "r" key.
+***
+### Explain the Integration Process
+***
+- It would be quite simple. Replacing current models will require little to no effort, and map design would simply require me to add e.g barriers to walls, more hookshots, possibly a different sky texture such as red for the signature "Doom Hell" and the map texture can also correspond to that as well. Healthpacks can be added in as a seperate class, affiliated with the player class due to modifying the player's healthbar which is a composition of the Player class as shown in my previous UML Class Diagram.
+***
+### Update Structure Chart/Class Diagram as Required
+
+***
+## Build and Test and Launch
