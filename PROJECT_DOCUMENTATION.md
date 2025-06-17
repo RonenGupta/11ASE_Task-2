@@ -1236,7 +1236,7 @@ app.run()
 ![Software Engineering UML Class Diagram 2 Ass 2](images/UMLCD2.png)
 - Link for UML Class Diagram 2: https://lucid.app/lucidchart/f8c1e433-c67e-454b-af16-8329f007d311/edit?invitationId=inv_8ea55e2c-9e66-480d-97b6-c1501f881cf8
 
-- Updated Structure Chart
+- Updated Structure Chart Link: https://lucid.app/lucidchart/7d300912-9a66-45e5-a7df-8d80400facc8/edit?viewport_loc=-3906%2C-230%2C6578%2C3849%2C0_0&invitationId=inv_82c413c1-17f0-4fa3-b258-e976bc9261b8
 
 ***
 ## Build and Test and Launch
