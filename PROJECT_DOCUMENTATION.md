@@ -1229,7 +1229,7 @@ app.run()
 ***
 ### Explain the Integration Process
 ***
-- It would be quite simple. Replacing current models will require little to no effort, and map design would simply require me to add e.g barriers to walls, more hookshots, possibly a different sky texture such as red for the signature "Doom Hell" and the map texture can also correspond to that as well. Healthpacks can be added in as a seperate class, affiliated with the player class due to modifying the player's healthbar which is a composition of the Player class as shown in my previous UML Class Diagram.
+- It would be quite simple. Replacing current models will require little to no effort, and map design would simply require me to add e.g barriers to walls and possibly a different sky texture such as red for the signature "Doom Hell" and the map texture can also correspond to that as well. Healthpacks can be added in as a seperate class, affiliated with the player class due to modifying the player's healthbar which is a composition of the Player class as shown in my previous UML Class Diagram.
 ***
 ### Update Structure Chart/Class Diagram as Required
 

@@ -114,10 +114,6 @@ def survival_game():
     gun = Gun(model='assets/glock.obj', color=color.gray, position=(3,0,3), scale=(.2,.2,.2))
     gun.on_click = lambda: gun.get_gun(player)
 
-    # Makes a hookshot from the inbuilt ursina.prefabs.first_person_controller module as well as the functions
-    hookshot_target = Button(parent=scene, model='cube', color=color.brown, position=(4,5,5))
-    hookshot_target.on_click = Func(player.animate_position, hookshot_target.position, duration=.5, curve=curve.out_quad)
-
     # Enemies text which tracks the enemies killed and alive
     enemies_text = Text(text = f'Enemies Killed: {enemies_killed} | Enemies Alive: {len(enemies_alive)}', position = (0, 0.45), scale = 1, color = color.white)
 
