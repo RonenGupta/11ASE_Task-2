@@ -8,8 +8,8 @@ def random_spawn_enemy(player):
     try:
         x = random.uniform(-50, 50) # Random x-coordinate
         z = random.uniform(-50, 50) # Random z-coordinate
-        randhealth = random.randint(75, 200)
-        enemy = Entity(model='assets/AlienGrub1.obj', texture='assets/AlienGrub1_Base_Diffuse.jpg', collider = 'box', scale = (0.025, 0.05, 0.025), position=(x, 1, z), health=randhealth) # Creates an enemy at a random position
+        randhealth = random.randint(75, 200) # Random health from 75 to 200 for the enemy
+        enemy = Entity(model='assets/AlienGrub1.obj', texture='assets/AlienGrub1_Base_Diffuse.jpg', color=color.green, collider = 'box', scale = (0.025, 0.05, 0.025), position=(x, 1, z), health=randhealth) # Creates an enemy at a random position and random health
         enemy.add_script(GroundedSmoothFollow(target=player, offset=[0, 0, 0], speed=10)) # Adds a script to follow the player using GroundedSmoothFollow
         return enemy # Returns the created enemy entity
     except Exception as e: # Error handling
@@ -19,7 +19,8 @@ def random_spawn_enemy(player):
 def spawn_enemy(player):
     """Function to spawn an enemy at a given position with specified properties."""
     try:
-        enemy = Entity(model='assets/AlienGrub1.obj', texture='assets/AlienGrub1_Base_Diffuse.jpg', collider = 'box', scale = (0.025, 0.05, 0.025), position=(5, 1, 5), health=100) # Creates an enemy entity
+        randhealth = random.randint(75, 200) # Random health from 75 to 200 for the enemy
+        enemy = Entity(model='assets/AlienGrub1.obj', texture='assets/AlienGrub1_Base_Diffuse.jpg', color=color.green, collider = 'box', scale = (0.025, 0.05, 0.025), position=(5, 1, 5), health=randhealth) # Creates an enemy entity at a random position and random health
         enemy.add_script(GroundedSmoothFollow(target=player, offset=[0, 0, 0], speed=10)) # Adds a script to follow the player using GroundedSmoothFollow
         return enemy # Returns the created enemy entity
     except Exception as e: # Error handling
@@ -29,6 +30,7 @@ def spawn_enemy(player):
 def menu(start_game, survival_game, instructions):
     """Function to handle the main menu of the game."""
     try:
+        roblox = Audio("music/Roblox.mp3", loop=True, autoplay=True) # Chill menu music plays until the menu is exited out of
         menu_bg = Entity(parent = camera.ui, model = 'quad', scale = (0.7,0.5), color = color.dark_gray, z = 1) # Menu BG
 
         title = Text(text="Doom.py", scale = 2, y = 0.25, parent = camera.ui, color = color.azure, background=True, origin=(0,0)) # Title for the game
@@ -38,9 +40,9 @@ def menu(start_game, survival_game, instructions):
         tutorial_button = Button(text="Tutorial", scale=(0.3, 0.12), y=0, x=0.50, color= color.azure, parent=camera.ui) # Tutorial Button
         exit_button = Button(text="Exit Game", scale=(0.3, 0.12), y=0, x=0.18, color = color.red, parent=camera.ui) # Exit Button
 
-        start_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), start_game(), print("Game Started!")) # Calls the start_game function in Sprint2.py when the start button is clicked
-        survivalplay_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), survival_game(), print("Freeplay Mode Activated!")) # Calls the survival_game function in Sprint2.py when the survival button is clicked
-        tutorial_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), instructions(), print("Tutorial Mode Activated!")) # Calls the instructions function in Sprint2.py when the tutorial button is clicked
+        start_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), start_game(), roblox.stop(), print("Game Started!")) # Calls the start_game function in Sprint2.py when the start button is clicked
+        survivalplay_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), survival_game(), roblox.stop(), print("Freeplay Mode Activated!")) # Calls the survival_game function in Sprint2.py when the survival button is clicked
+        tutorial_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), instructions(roblox), print("Tutorial Mode Activated!")) # Calls the instructions function in Sprint2.py when the tutorial button is clicked
         exit_button.on_click = application.quit # Exits the game when the exit button is clicked
     except Exception as e: # Error handling
         print(f"Error in menu function: {e}")
@@ -51,7 +53,7 @@ class Bullet(Entity):
     def __init__(self, position, direction): # Position and direction are passed as parameters
         try:
             super().__init__(parent=scene, model='cube', scale=1, color=color.black, collider='box', position = position) # Initializes the bullet entity with a cube model, black color, and box collider
-            self._direction = direction.normalized() # Sets the direction of the bullet
+            self._direction = direction.normalized() # Sets the direction of the bullet as a protected attribute, no need to do self.direction = self._direction
             self.look_at(position + self._direction) # Makes the bullet look at the position it is moving towards
         except Exception as e: # Error handling
             print(f"Error initializing Bullet: {e}")
@@ -74,12 +76,12 @@ class Bullet(Entity):
 class Player(FirstPersonController):
     def __init__(self, **kwargs):
         super().__init__(model='cube', color=color.clear, speed=10, scale_y=2, collider='box', **kwargs) # Uses super to set attributes to certain values and store in dict using **kwargs
-        self._speed = 10
-        self._gun = None # Initialises the player to not have a gun
-        self.gun = self._gun
-        self._healthbar = HealthBar(bar_color=color.lime.tint(-.25), roundness=.5, highlight_color=color.yellow.tint(-.2)) # Initialises a healthbar for the player
-        self.healthbar=self._healthbar
-        scene.player = self
+        self._speed = 10 # Make a protected attribute of speed
+        self._gun = None # Initialises the player to not have a gun as a protected attribute
+        self.gun = self._gun # Since the protected attribute does not directly access gun and other parts of the code require this to easily access/modify (e.g player.gun would not work with player._gun), we assign it to the actual attribute
+        self._healthbar = HealthBar(bar_color=color.lime.tint(-.25), roundness=.5, highlight_color=color.yellow.tint(-.2)) # Initialises a healthbar for the player, a protected attribute, the same as before
+        self.healthbar=self._healthbar # Also assign the protected attribute to the actual attribute for previous reasons
+        scene.player = self # Assign the player to the scene at default
 
     # Sprint method for the class
     def sprint(self, key):
@@ -89,7 +91,7 @@ class Player(FirstPersonController):
                 self._speed = 20 # Sets player speed to 20 when sprinting
             elif key == "shift up": # Checks if the shift key is released
                 self._speed = 10 # Resets player speed to 10 when not sprinting
-            self.speed = self._speed
+            self.speed = self._speed # Assign speed to the protected attribute used in the function for previous reasoning
         except Exception as e: # Error handling
             print(f"Error in sprint function: {e}")
 
@@ -109,7 +111,7 @@ class Player(FirstPersonController):
         try:
             self._healthbar.value -= amount # Subtracts the healthbar amount
             if self._healthbar.value <= 0: # If the healthbar amount is less than or equal to 0
-                quit() # Quit the game as the player has died
+                application.quit() # Quit the application
         except Exception as e: # Error handling
             print(f"Error in enmdmg function: {e}")
 
@@ -119,11 +121,13 @@ class Player(FirstPersonController):
         try:
             hit_info = raycast(camera.world_position, camera.forward, distance=500, ignore=[self], debug=False) # Raycasts from the camera's position in the direction it is facing
             if hit_info.hit and hit_info.entity == enemy: # Checks if the raycast hit an entity
+                Audio("music/EnemyPain.wav") # Play enemy pain audio
                 enemy.blink(color.red) # Blinks the enemy red to indicate it has been hit
                 invoke(setattr, enemy, 'color', color.blue, delay=0.15) # Delay the color change to blue after being hit
                 enemy.health -= damage # Decreases the enemy's health by gun damage
                 print(f"Enemy hit! Health: {enemy.health}") # Prints the enemy health to the console
                 if enemy.health <= 0: # Checks if the enemy's health is less than or equal to 0
+                    Audio("music/EnemyDeath.wav") # Play enemy death audio if dead
                     print("Enemy defeated!") # Prints a message to the console when the enemy is defeated
                     destroy(enemy) # Destroys the enemy entity when defeated
                     return True # Returns True if enemy is defeated, for potential actions
@@ -145,19 +149,20 @@ class GroundedSmoothFollow(SmoothFollow):
 # Gun class that the player can equip and shoot inherited from button
 class Gun(Button):
     """A subclass/childclass of Button that allows the user to press it like a button ingame and pick it up, also allowing for shooting"""
-    def __init__(self, model, color, position, scale, damage=50, fire_rate=0.5, **kwargs): # Sets some attributes in a dict using **kwargs and defines some beforehand
+    def __init__(self, model, color, position, scale, damage=25, fire_rate=0.5, **kwargs): # Sets some attributes in a dict using **kwargs and defines some beforehand
         super().__init__(parent=scene, model=model, color=color, origin_y=-.5, position=position, scale=scale, **kwargs) # Values added to keys defined in attributes beforehand using super avoiding redundancy
-        # New attributes for the gun
-        self._damage = damage 
-        self._fire_rate = fire_rate
-        self._last_shot_time = 0 
+        # New protected attributes for the gun, this is a special case as inheritance from gun allows the attribute to be used without defining the original attribute = protected attribute also in shotgun and minigun as it is only used in the shoot method of gun, shotgun and minigun, within those and not anywhere else, entitling the shoot method as the public interface of these attributes.
+        self._damage = damage # Initialise protected attribute for damage
+        self._fire_rate = fire_rate # Initialise protected attribute for fire rate
+        self._last_shot_time = 0 # Initialise protected attribute for last shot time
 
     def shoot(self):
         """Shoots the players gun."""
         from time import time # Time to check the last shot time and maintain firerate
         try:
             if time() - self._last_shot_time >= self._fire_rate: # Checks if the time since the last shot is greater than or equal to the fire rate
-                Audio("assets/laser_sound.wav") # Play audio
+                Audio("music/Pistol.mp3") # Play audio for pistol shooting
+                Audio("music/Reload.mp3")
                 self.blink(color.red) # Blinks the gun red
                 offset = Vec3(0, 0, 0) # Offset for the bullet position is straight in front of the gun
                 Bullet(position=self.world_position + self.forward * 1.5 + offset, direction=self.forward) # Creates a bullet entity at the position of the gun
@@ -177,6 +182,7 @@ class Gun(Button):
             self.position = Vec3(0,-.80,1) # Sets the position of the new gun relative to the camera
             player.gun = self # Assigns the new gun to the player
             self.collider = None # Removes the collider from the new gun to prevent collisions
+            Audio("music/Reload.mp3")
         except Exception as e: # Error handling
             print(f"Error getting gun: {e}")
     
@@ -202,7 +208,7 @@ class Shotgun(Gun):
         from time import time
         try:
             if time() - self._last_shot_time >= self._fire_rate: # Checks if the time since the last shot is greater than or equal to the fire rate
-                Audio("assets/laser_sound.wav") # Plays audio
+                Audio("music/Shotgun.mp3") # Plays audio for shotgun shooting sound
                 self.blink(color.orange) # Blinks the gun orange
                 random_damage = random.randint(90, 120) # Random damage variable which resets every time we check fire rate
                 self._damage = random_damage # Sets damage to random damage
@@ -240,21 +246,21 @@ class Shotgun(Gun):
             print(f"Error dropping gun: {e}")
 
 class Minigun(Gun):
-    def __init__(self, model, color, position, scale, damage=5, fire_rate=0.1, **kwargs): # Uses **kwargs to store key and values of attributes
+    def __init__(self, model, color, position, scale, damage=20, fire_rate=0.1, **kwargs): # Uses **kwargs to store key and values of attributes
         super().__init__(model=model, color=color, position=position, scale=scale, damage=damage, fire_rate=fire_rate, **kwargs) # Uses super to forward certain attribute values to the dict
 
     def shoot(self):
         from time import time
         try:
             if time() - self._last_shot_time >= self._fire_rate: # Checks if the time since the last shot is greater than or equal to the fire rate
-                Audio("assets/laser_sound.wav") # Plays Audio
+                Audio("music/Minigun.wav", volume=2) # Plays Audio for shooting minigun
                 self.blink(color.red) # Blinks gun red
                 offset = Vec3(0, 0, 0) # Offset for the bullet position is straight in front of the gun
                 Bullet(position=self.world_position + self.forward * 1.5 + offset, direction=self.forward) # Creates a bullet entity at the position of the gun
                 self._last_shot_time = time() # Updates the last shot time to the current shot
                 return True # Tells that the gun was successfully shot
             return False # No shot was fired due to fire rate restriction
-        except Exception as e:
+        except Exception as e: # Error handling
             print(f"Error in Gun shoot method: {e}")
             return False # Returns false if there was an error in shooting
         
@@ -267,7 +273,7 @@ class Minigun(Gun):
             self.position = Vec3(0,-1.10,.5) # Sets the position of the new gun relative to the camera
             player.gun = self # Assigns the new gun to the player
             self.collider = None # Removes the collider from the new gun to prevent collisions
-        except Exception as e:
+        except Exception as e: # Error handling
             print(f"Error getting gun: {e}")
 
     def drop_gun(self, player):
@@ -275,7 +281,7 @@ class Minigun(Gun):
         try:
             if self.parent == camera: # If the player's gun is equipped to the camera
                 self.parent = scene # Sets the players gun to the scene
-                drop_point = player.position + Vec3(0, 1, 1) # Determines drop point close to the player
+                drop_point = player.position + Vec3(0, 1, 2) # Determines drop point close to the player
                 self.position = drop_point # Sets position to the drop point
                 self.collider = 'box' # Sets collider for the gun
         except Exception as e: # Error handling
@@ -284,19 +290,19 @@ class Minigun(Gun):
 class HealthPack(Entity):
     def __init__(self, position, heal_amount = 25):
         super().__init__(parent=scene, model='assets/HealthPack.Obj', texture = "assets/HealthPack_Albedo.tga", collider='box', position=position, scale=(0.02, 0.05, -0.02))
-        self._heal_amount = heal_amount
+        self._heal_amount = heal_amount # Heal amount initialised as a protected attribute, we don't need the additional self.heal_amount = self._heal_amount because it is only used internally within the healthpack class
 
     def heal(self):
         """Checks if the player hits the healthpack, and if so heals them"""
         try:
-            scene.player.healthbar.value = min(scene.player.healthbar.value + self._heal_amount, 100)
-            Audio('assets/laser_sound.wav')
-            destroy(self)
-            print(f"Sucessfully healed! Health: {scene.player.healthbar.value}")
-            return True
-        except Exception as e:
+            scene.player.healthbar.value = min(scene.player.healthbar.value + self._heal_amount, 100) # Heals the player's healthbar by 25, no more than 100
+            Audio("music/Heal.mp3", volume=6) # Plays heal audio at 6x volume
+            destroy(self) # Destroys the healthpack
+            print(f"Sucessfully healed! Health: {scene.player.healthbar.value}") # Prints successful command
+            return True # Returns True when successfully healed
+        except Exception as e: # Error handling
             print(f"Error in heal method: {e}")
-            return False
+            return False # Returns False when healing failed
 
 
 

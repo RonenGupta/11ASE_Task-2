@@ -14,11 +14,11 @@
 
 ***
 ### Non-Functional Requirements
-- Performance: The system needs to load up in under 10 seconds, have at least above 100 FPS, and all functions must function.
+- Performance: The system needs to load up in under 10 seconds, have at least 60 FPS, and all functions must function.
 
-- Reliability: The system must not include too many major bugs, and the data should be reliable in order to control realistic FPS physics.
+- Reliability: The system must not include too many major bugs/unrealistic FPS physics, and the data should be reliable in order to control this.
 
-- Usability and Accessibility: The system must be extremely easy to get a hold of. WASD, space and mouse controls will be the only controls for playing the game, and any other controls can be accessed from the instructions tab.
+- Usability and Accessibility: The system must be extremely easy to get a hold of. WASD, space and mouse controls will be the only controls for playing the game, and any other controls can be accessed from the instructions tab for clear, concise player control.
 ***
 ## Determining Specifications
 ***
@@ -49,17 +49,17 @@
 
 - Main Flow:
 
-1. Launch Game: User launches the game and sees a menu screen with 3 tabs. Play, tutorial, and exit.
+1. Launch Game: User launches the game and sees a menu screen with 4 tabs. Survival, Simulator, Tutorial, and Exit.
 
-2. Clicks Play: User clicks play (As it is the normal option) and spawns in a map with a gun on the floor, and on the UI appears his health bar.
+2. Clicks Play: User clicks survival (As it is the normal option) and spawns in a map with a gun on the floor, and on the UI appears his health bar.
 
 3. Simulation: After the user picks up the gun, they can press keys on their keyboard to spawn corresponding enemies, or an enemy to simulate an FPS experience.
 
-4. Game End: After the game has ended, (The user has died ingame) the game shows the scores of the player (This may not be possible due to how Ursina renders certain game objects and deletes them)
+4. Game End: After the game has ended, (The user has died ingame) the game shows the scores of the player. (This may not be possible due to how Ursina renders certain game objects and deletes them)
 
-5. Loop: The user is then prompted to the menu screen again with the same 3 tabs, leading to a loop until they press the exit button, where they can view the tutorial or play before exiting.
+5. Loop: The user is then prompted to the menu screen again with the same 4 tabs, leading to a loop until they press the exit button, where they can view the tutorial or play before exiting. (This also may not be possible, but the player can run the application again to enable the gameplay loop in the use case scenario.)
 
-- Postconditions: User has played the simulator, understands how to play the game and has viewed their score.
+- Postconditions: User has played the simulator/survival, understands how to play the game, and can view scores. 
 
 ***
 ## Design
@@ -1229,7 +1229,7 @@ app.run()
 ***
 ### Explain the Integration Process
 ***
-- It would be quite simple. Replacing current models will require little to no effort, and map design would simply require me to add e.g barriers to walls and possibly a different sky texture such as red for the signature "Doom Hell" and the map texture can also correspond to that as well. Healthpacks can be added in as a seperate class, affiliated with the player class due to modifying the player's healthbar which is a composition of the Player class as shown in my previous UML Class Diagram.
+- It would be quite simple. Replacing current models will require little to no effort, and map design would simply require me to add e.g barriers to walls and possibly a different sky texture such as red for the signature "Doom Hell" and the map texture can also correspond to that as well. Healthpacks can be added in as a seperate class, affiliated with the player class due to modifying the player's healthbar which is a composition of the Player class as shown in my previous UML Class Diagram. Adding a boss as well, with a boss alerter may also be beneficial for the games emotion evoking integrity, as the player must feel as much horror and nervousness while playing the game.
 ***
 ### Update Structure Chart/Class Diagram as Required
 - Updated UML Class Diagram
