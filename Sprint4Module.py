@@ -120,15 +120,15 @@ class Player(FirstPersonController):
         """Function to handle player damage to the enemy. Uses raycasting to detect if it hit anything and if it is the enemy."""
         try:
             hit_info = raycast(camera.world_position, camera.forward, distance=500, ignore=[self], debug=False) # Raycasts from the camera's position in the direction it is facing
-            if hit_info.hit and hit_info.entity == enemy: # Checks if the raycast hit an entity
+            if hit_info.hit and hit_info.entity == enemy and enemy.health > 0: # Checks if the raycast hit an entity
                 Audio("music/EnemyPain.wav") # Play enemy pain audio
                 enemy.blink(color.red) # Blinks the enemy red to indicate it has been hit
                 invoke(setattr, enemy, 'color', color.blue, delay=0.15) # Delay the color change to blue after being hit
                 enemy.health -= damage # Decreases the enemy's health by gun damage
                 print(f"Enemy hit! Health: {enemy.health}") # Prints the enemy health to the console
-                if enemy.health <= 0: # Checks if the enemy's health is less than or equal to 0
+            elif enemy.health <= 0: # Checks if the enemy's health is less than or equal to 0
                     Audio("music/EnemyDeath.wav") # Play enemy death audio if dead
-                    print("Enemy defeated!") # Prints a message to the console when the enemy is defeated
+                    print(f"Enemy defeated! {enemy.health}") # Prints a message to the console when the enemy is defeated
                     destroy(enemy) # Destroys the enemy entity when defeated
                     return True # Returns True if enemy is defeated, for potential actions
         except Exception as e: # Error handling
@@ -162,7 +162,6 @@ class Gun(Button):
         try:
             if time() - self._last_shot_time >= self._fire_rate: # Checks if the time since the last shot is greater than or equal to the fire rate
                 Audio("music/Pistol.mp3") # Play audio for pistol shooting
-                Audio("music/Reload.mp3")
                 self.blink(color.red) # Blinks the gun red
                 offset = Vec3(0, 0, 0) # Offset for the bullet position is straight in front of the gun
                 Bullet(position=self.world_position + self.forward * 1.5 + offset, direction=self.forward) # Creates a bullet entity at the position of the gun
