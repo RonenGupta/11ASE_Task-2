@@ -208,7 +208,7 @@ class Shotgun(Gun):
         try:
             if time() - self._last_shot_time >= self._fire_rate: # Checks if the time since the last shot is greater than or equal to the fire rate
                 Audio("music/Shotgun.mp3") # Plays audio for shotgun shooting sound
-                self.blink(color.orange) # Blinks the gun orange
+                self.blink(color.red) # Blinks the gun orange
                 random_damage = random.randint(90, 120) # Random damage variable which resets every time we check fire rate
                 self._damage = random_damage # Sets damage to random damage
                 for i in range(5):  # Spawns 5 bullets
