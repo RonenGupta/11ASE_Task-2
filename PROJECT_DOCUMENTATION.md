@@ -1240,3 +1240,9 @@ app.run()
 
 ***
 ## Build and Test and Launch
+
+Plus
+
+Minus
+
+Implication
