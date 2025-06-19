@@ -205,7 +205,7 @@ def survival_game():
             print(f"Error in spawning healthpacks randomly in survival: {e}")
 
     # Calls the function
-    spawn_healthpack_randomly()
+    invoke(spawn_healthpack_randomly, delay=10)
 
     # Updates the time every frame, using the unique update function in Ursina
     def update():
@@ -255,8 +255,8 @@ def instructions(roblox):
 # Calls the menu function, makes the game fullscreen, and runs the game
 app = Ursina(fullscreen=True)
 window.fps_counter.enabled = False
-window.exit_button.visible = False
-window.entity_counter.visible = False
-window.collider_counter.visible = False
+window.exit_button.enabled = False
+window.entity_counter.enabled = False
+window.collider_counter.enabled = False
 menu(start_game, survival_game, instructions)
 app.run()

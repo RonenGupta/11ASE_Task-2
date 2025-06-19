@@ -11,7 +11,7 @@ Ronen Gupta
 - Tutorial: View the controls for the gamemodes.
 - Exit: Exit the game.
 
-- Note: Do not press Shift and Q together as it triggers an unknown error in Ursina Engine, making the game crash midway. I have researched this flaw for a long time and also checked with peers using Ursina Engine, however they face the game issue as well. For the sake of the gameplay, do not press Shift and Q together :(
+- Note: If you crashed, it may be because you pressed Shift and Q together. Do not press Shift and Q together as it triggers an unknown error in Ursina Engine, making the game crash midway. I have researched this flaw for a long time and also checked with peers using Ursina Engine, however they face the game issue as well. For the sake of the gameplay, do not press Shift and Q together :(
     
 ## Requirements
 
