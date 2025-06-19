@@ -120,7 +120,7 @@ class Player(FirstPersonController):
         """Function to handle player damage to the enemy. Uses raycasting to detect if it hit anything and if it is the enemy."""
         try:
             hit_info = raycast(camera.world_position, camera.forward, distance=500, ignore=[self], debug=False) # Raycasts from the camera's position in the direction it is facing
-            if hit_info.hit and hit_info.entity == enemy and enemy.health > 0: # Checks if the raycast hit an entity
+            if hit_info.hit and hit_info.entity == enemy and enemy.health > 0: # Checks if the raycast hit an entity and they have greater than 0 health after hitting
                 Audio("music/EnemyPain.wav") # Play enemy pain audio
                 enemy.blink(color.red) # Blinks the enemy red to indicate it has been hit
                 invoke(setattr, enemy, 'color', color.blue, delay=0.15) # Delay the color change to blue after being hit
