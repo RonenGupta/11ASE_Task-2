@@ -1780,12 +1780,12 @@ def survival_game():
             z = random.uniform(-50, 50) # Random z-coordinate
             healthpack = HealthPack(position=(x, 1, z))
             healthpacks_alive.append(healthpack)
-            invoke(spawn_healthpack_randomly, delay=random.uniform(20, 50))
+            invoke(spawn_healthpack_randomly, delay=random.uniform(100, 120))
         except Exception as e:
             print(f"Error in spawning healthpacks randomly in survival: {e}")
 
     # Calls the function
-    spawn_healthpack_randomly()
+    invoke(spawn_healthpack_randomly, delay=10)
 
     # Updates the time every frame, using the unique update function in Ursina
     def update():
@@ -1827,17 +1827,17 @@ def survival_game():
 def instructions(roblox):
      """Initialises the instructions menu for the game, showing the user how to play the game and the controls."""
      tutorial_bg = Entity(parent=camera.ui, model='quad', scale=(0.7, 0.5), color=color.dark_gray, z=1)
-     maingamemodes = Text("How to play:\n" "Survival Gamemode: Survive waves of enemies and live for as long as you can!\n" "Freeplay Gamemode: Spawn enemies with the E key\n or spawn health packs with the R key,\n use different guns, and simulate FPS!\n" "Exit: Exits the game (See ya!)", parent=tutorial_bg, position=(-0.85, 0.25), scale=1.75, color=color.white)
-     maincontrols = Text("Main Controls:\n" "WASD: Move the player around!\n" "Left mouse button: Shoot the gun!\n" "Shift: Sprint like the wind!\n" "E Key (Only in Freeplay): Spawns Enemies!\n" "R Key (Only in Freeplay): Spawns Health Packs!", parent=tutorial_bg, position=(-0.85, -0.25), scale=1.75, color=color.white)
+     maingamemodes = Text("How to play:\n" "Survival Gamemode: Survive waves of enemies and live for as long as you can!\n" "Simulator Gamemode: Spawn enemies with the E key\n or spawn health packs with the R key,\n use different guns, and simulate FPS!\n" "Exit: Exits the game (See ya!)", parent=tutorial_bg, position=(-0.85, 0.25), scale=1.75, color=color.white)
+     maincontrols = Text("Main Controls:\n" "WASD: Move the player around!\n" "Left mouse button: Shoot the gun!\n" "Shift: Sprint like the wind!\n" "E Key (Only in Simulator): Spawns Enemies!\n" "R Key (Only in Simulator): Spawns Health Packs!", parent=tutorial_bg, position=(-0.85, -0.25), scale=1.75, color=color.white)
      exit_button = Button(text="Exit", parent=tutorial_bg, position=(-1.1, 0.91), scale=(0.1, 0.05), color=color.red, on_click= lambda: (destroy(maincontrols), destroy(maingamemodes), destroy(tutorial_bg), destroy(exit_button), roblox.stop(), menu(start_game, survival_game, instructions)))
 
 
 # Calls the menu function, makes the game fullscreen, and runs the game
 app = Ursina(fullscreen=True)
 window.fps_counter.enabled = False
-window.exit_button.visible = False
-window.entity_counter.visible = False
-window.collider_counter.visible = False
+window.exit_button.enabled = False
+window.entity_counter.enabled = False
+window.collider_counter.enabled = False
 menu(start_game, survival_game, instructions)
 app.run()
 ```
