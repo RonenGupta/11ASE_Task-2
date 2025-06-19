@@ -33,11 +33,11 @@ def menu(start_game, survival_game, instructions):
         roblox = Audio("music/Roblox.mp3", loop=True, autoplay=True) # Chill menu music plays until the menu is exited out of
         menu_bg = Entity(parent = camera.ui, model = 'quad', scale = (0.7,0.5), color = color.dark_gray, z = 1) # Menu BG
 
-        title = Text(text="Doom.py", scale = 2, y = 0.25, parent = camera.ui, color = color.azure, background=True, origin=(0,0)) # Title for the game
+        title = Sprite(texture="images/DoomPython.png", scale = 0.45, y = 0.25, parent = camera.ui, background=True, origin=(0,0)) # Title for the game
 
-        start_button = Button(text="Simulator Game", scale=(0.3, 0.12), y=0, x=-0.18, color= color.azure, parent=camera.ui) # Start Button for Simulator Game
-        survivalplay_button = Button(text="Survival Game", scale=(0.3, 0.12), y=0, x=-0.50, color = color.azure, parent=camera.ui) # Start Button for Survival Game
-        tutorial_button = Button(text="Tutorial", scale=(0.3, 0.12), y=0, x=0.50, color= color.azure, parent=camera.ui) # Tutorial Button
+        start_button = Button(text="Simulator Game", scale=(0.3, 0.12), y=0, x=-0.18, color= color.black, parent=camera.ui) # Start Button for Simulator Game
+        survivalplay_button = Button(text="Survival Game", scale=(0.3, 0.12), y=0, x=-0.50, color = color.black, parent=camera.ui) # Start Button for Survival Game
+        tutorial_button = Button(text="Tutorial", scale=(0.3, 0.12), y=0, x=0.50, color= color.black, parent=camera.ui) # Tutorial Button
         exit_button = Button(text="Exit Game", scale=(0.3, 0.12), y=0, x=0.18, color = color.red, parent=camera.ui) # Exit Button
 
         start_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), start_game(), roblox.stop(), print("Game Started!")) # Calls the start_game function in Sprint2.py when the start button is clicked
@@ -149,7 +149,7 @@ class GroundedSmoothFollow(SmoothFollow):
 # Gun class that the player can equip and shoot inherited from button
 class Gun(Button):
     """A subclass/childclass of Button that allows the user to press it like a button ingame and pick it up, also allowing for shooting"""
-    def __init__(self, model, color, position, scale, damage=25, fire_rate=0.5, **kwargs): # Sets some attributes in a dict using **kwargs and defines some beforehand
+    def __init__(self, model, color, position, scale, damage=50, fire_rate=0.5, **kwargs): # Sets some attributes in a dict using **kwargs and defines some beforehand
         super().__init__(parent=scene, model=model, color=color, origin_y=-.5, position=position, scale=scale, **kwargs) # Values added to keys defined in attributes beforehand using super avoiding redundancy
         # New protected attributes for the gun, this is a special case as inheritance from gun allows the attribute to be used without defining the original attribute = protected attribute also in shotgun and minigun as it is only used in the shoot method of gun, shotgun and minigun, within those and not anywhere else, entitling the shoot method as the public interface of these attributes.
         self._damage = damage # Initialise protected attribute for damage

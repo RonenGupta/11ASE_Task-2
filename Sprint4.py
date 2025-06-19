@@ -76,7 +76,7 @@ def start_game():
                             enemies_alive.remove(enemy) # Removes the enemy from the alive list
                             enemies_killed += 1 # Adds to the enemies killed count
                             update_enemy_texts() # Updates the enemies text
-            elif key == 'left mouse down': # If the player only presses left mouse down once
+            elif isinstance(player.gun, Shotgun) or isinstance(player.gun, Gun) and key == 'left mouse down': # If the player only presses left mouse down once
                 if player.gun.shoot(): # If the player successfully shoots
                     for enemy in enemies_alive[:]: # Loops through all alive enemies (Copy of the existing list)
                         if player.plrdmg(enemy, player.gun._damage): # Checks if the player kills the enemy
@@ -139,6 +139,7 @@ def survival_game():
 
     # Spawns the shotgun, minigun, boss and the boss alerter when called
     def spawn_shotgun():
+            """Spawns the shotgun in the survival gamemode"""
             try:
                 shotgun = Shotgun(model='assets/gun.obj', color=color.gray, position=(3,0,3), scale=(.4,.4,.2))
                 shotgun.on_click = lambda: shotgun.get_gun(player)
@@ -146,6 +147,7 @@ def survival_game():
                 print(f"Error in spawning shotgun in survival: {e}")
     
     def spawn_minigun():
+            """Spawns the minigun in the survival gamemode"""
             try:
                 minigun = Minigun(model = 'assets/Minigun_.obj', color=color.gray, position=(7, 0, 3), scale=(.4,.4,.2))
                 minigun.on_click = lambda: minigun.get_gun(player)
@@ -153,6 +155,7 @@ def survival_game():
                 print(f"Error in spawning minigun in survival: {e}")
 
     def spawn_boss():
+            """Spawns the final boss of the game"""
             try:
                 x = random.uniform(-50, 50) # Random x-coordinate
                 z = random.uniform(-50, 50) # Random z-coordinate
@@ -164,6 +167,7 @@ def survival_game():
                 print(f"Error while spawning boss: {e}")
 
     def boss_alerter():
+        """Spawns the boss alerter and plays an audio and deletes after 5 seconds"""
         alert = Text("Boss spawning in 10 Seconds!", position = (0, 0.30), scale = 1, color = color.white)
         Audio("music/Alert.mp3")
         destroy(alert, delay=5)
@@ -186,7 +190,7 @@ def survival_game():
             print(f"Error in spawning enemies randomly in survival: {e}")
 
     # Calls the function
-    spawn_enemies_randomly()
+    invoke(spawn_enemies_randomly, delay = 10)
 
     # Spawns healthpacks randomly and adds them to the healthpacks_alive list
     def spawn_healthpack_randomly():
@@ -196,7 +200,7 @@ def survival_game():
             z = random.uniform(-50, 50) # Random z-coordinate
             healthpack = HealthPack(position=(x, 1, z))
             healthpacks_alive.append(healthpack)
-            invoke(spawn_healthpack_randomly, delay=random.uniform(20, 50))
+            invoke(spawn_healthpack_randomly, delay=random.uniform(100, 120))
         except Exception as e:
             print(f"Error in spawning healthpacks randomly in survival: {e}")
 
@@ -205,6 +209,7 @@ def survival_game():
 
     # Updates the time every frame, using the unique update function in Ursina
     def update():
+        """Updates the conditional statement of hitting an enemy or not and of hitting the healthpack every frame"""
         update_time_elapsed_texts()
         for enemy in enemies_alive[:]: # Loops through all alive enemies in a copy of the list
             if player.intersects(enemy).hit: # If the player hits/touches an enemy in the copy list
@@ -230,7 +235,7 @@ def survival_game():
                             enemies_killed += 1 # Adds to the enemies killed count
                             update_enemy_texts() # Updates the enemies text
                         
-            elif key == 'left mouse down': # Checks if the player has a gun
+            elif isinstance(player.gun, Shotgun) or isinstance(player.gun, Gun) and key == 'left mouse down': # Checks if the player has a gun
                 if player.gun.shoot(): 
                     for enemy in enemies_alive[:]: # Loops through all alive enemies
                         if player.plrdmg(enemy, player.gun._damage): # Checks if the player kills the enemy
@@ -242,13 +247,16 @@ def survival_game():
 def instructions(roblox):
      """Initialises the instructions menu for the game, showing the user how to play the game and the controls."""
      tutorial_bg = Entity(parent=camera.ui, model='quad', scale=(0.7, 0.5), color=color.dark_gray, z=1)
-     maingamemodes = Text("How to play:\n" "Survival Gamemode: Survive waves of enemies and live for as long as you can!\n" "Freeplay Gamemode: Spawn enemies with the E key\n or spawn health packs with the R key,\n use different guns, and simulate FPS!\n" "Exit: Exits the game (See ya!)", parent=tutorial_bg, position=(-0.85, 0.25), scale=1.75, color=color.white)
-     maincontrols = Text("Main Controls:\n" "WASD: Move the player around!\n" "Left mouse button: Shoot the gun!\n" "Shift: Sprint like the wind!\n" "E Key (Only in Freeplay): Spawns Enemies!\n" "R Key (Only in Freeplay): Spawns Health Packs!", parent=tutorial_bg, position=(-0.85, -0.25), scale=1.75, color=color.white)
+     maingamemodes = Text("How to play:\n" "Survival Gamemode: Survive waves of enemies and live for as long as you can!\n" "Simulator Gamemode: Spawn enemies with the E key\n or spawn health packs with the R key,\n use different guns, and simulate FPS!\n" "Exit: Exits the game (See ya!)", parent=tutorial_bg, position=(-0.85, 0.25), scale=1.75, color=color.white)
+     maincontrols = Text("Main Controls:\n" "WASD: Move the player around!\n" "Left mouse button: Shoot the gun!\n" "Shift: Sprint like the wind!\n" "E Key (Only in Simulator): Spawns Enemies!\n" "R Key (Only in Simulator): Spawns Health Packs!", parent=tutorial_bg, position=(-0.85, -0.25), scale=1.75, color=color.white)
      exit_button = Button(text="Exit", parent=tutorial_bg, position=(-1.1, 0.91), scale=(0.1, 0.05), color=color.red, on_click= lambda: (destroy(maincontrols), destroy(maingamemodes), destroy(tutorial_bg), destroy(exit_button), roblox.stop(), menu(start_game, survival_game, instructions)))
 
 
 # Calls the menu function, makes the game fullscreen, and runs the game
 app = Ursina(fullscreen=True)
+window.fps_counter.enabled = False
+window.exit_button.visible = False
+window.entity_counter.visible = False
+window.collider_counter.visible = False
 menu(start_game, survival_game, instructions)
 app.run()
-

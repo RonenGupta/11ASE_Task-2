@@ -49,11 +49,11 @@
 
 - Main Flow:
 
-1. Launch Game: User launches the game and sees a menu screen with 4 tabs. Survival, Simulator, Tutorial, and Exit.
+1. Launch game and view tutorial: User launches the game and sees a menu screen with 4 tabs. Survival, Simulator, Tutorial, and Exit. The user would then click the tutorial to check how to play.
 
-2. Clicks Play: User clicks survival (As it is the normal option) and spawns in a map with a gun on the floor, and on the UI appears his health bar.
+2. Clicks Play: User clicks survival after viewing the tutorial (As it is the normal option) and spawns in a map with a gun on the floor, and on the UI appears his health bar. After he has died he can go on to the simulation gamemode.
 
-3. Simulation: After the user picks up the gun, they can press keys on their keyboard to spawn corresponding enemies, or an enemy to simulate an FPS experience.
+3. Clicks Simulation: After the user picks up the gun, they can press keys on their keyboard to spawn corresponding enemies, or an enemy to simulate an FPS experience.
 
 4. Game End: After the game has ended, (The user has died ingame) the game shows the scores of the player. (This may not be possible due to how Ursina renders certain game objects and deletes them)
 
@@ -1240,9 +1240,671 @@ app.run()
 
 ***
 ## Build and Test and Launch
+- README.md
+```python
+# Year 11 Accelerated Software Engineering Assessment Task 2 FPS Game - Sprint 4
 
-Plus
+### Author
+Ronen Gupta
 
-Minus
+## Features
 
-Implication
+- Main Menu: Choose between 4 choices, Survival, Free Play, View the Tutorial, or exit the game.
+- Survival Mode: Standard survival FPS gameplay with grotesque enemies and a secret finale. Survive for as long as you can!
+- Free Play Mode: Try spawning enemies of your own and try between 3 guns!
+- Tutorial: View the controls for the gamemodes.
+- Exit: Exit the game.
+
+- Note: Do not press Shift and Q together as it triggers an unknown error in Ursina Engine, making the game crash midway. I have researched this flaw for a long time and also checked with peers using Ursina Engine, however they face the game issue as well. For the sake of the gameplay, do not press Shift and Q together :(
+
+## Requirements
+
+- To run this program, you need to install the following dependencies:
+- Python 3.8 or higher
+- [Ursina Engine](https://www.ursinaengine.org/)
+
+### Install dependencies
+To install the required dependencies, you can run:
+
+```bash
+pip install -r requirements.txt
+```
+***
+- Sprint4Module.py
+```python
+from ursina import * # Ursina library
+import random # Random library
+from ursina.prefabs.first_person_controller import FirstPersonController # First Person Controller from Ursina
+from ursina.prefabs.health_bar import HealthBar # Health Bar from Ursina
+
+def random_spawn_enemy(player):
+    """Spawns enemies at random positions within a specified range (-50 to 50 on x and z axes)."""
+    try:
+        x = random.uniform(-50, 50) # Random x-coordinate
+        z = random.uniform(-50, 50) # Random z-coordinate
+        randhealth = random.randint(75, 200) # Random health from 75 to 200 for the enemy
+        enemy = Entity(model='assets/AlienGrub1.obj', texture='assets/AlienGrub1_Base_Diffuse.jpg', color=color.green, collider = 'box', scale = (0.025, 0.05, 0.025), position=(x, 1, z), health=randhealth) # Creates an enemy at a random position and random health
+        enemy.add_script(GroundedSmoothFollow(target=player, offset=[0, 0, 0], speed=10)) # Adds a script to follow the player using GroundedSmoothFollow
+        return enemy # Returns the created enemy entity
+    except Exception as e: # Error handling
+        print(f"Error spawning random enemy: {e}")
+
+# Spawn Enemy function
+def spawn_enemy(player):
+    """Function to spawn an enemy at a given position with specified properties."""
+    try:
+        randhealth = random.randint(75, 200) # Random health from 75 to 200 for the enemy
+        enemy = Entity(model='assets/AlienGrub1.obj', texture='assets/AlienGrub1_Base_Diffuse.jpg', color=color.green, collider = 'box', scale = (0.025, 0.05, 0.025), position=(5, 1, 5), health=randhealth) # Creates an enemy entity at a random position and random health
+        enemy.add_script(GroundedSmoothFollow(target=player, offset=[0, 0, 0], speed=10)) # Adds a script to follow the player using GroundedSmoothFollow
+        return enemy # Returns the created enemy entity
+    except Exception as e: # Error handling
+        print(f"Error spawning enemy: {e}")
+
+# Menu function
+def menu(start_game, survival_game, instructions):
+    """Function to handle the main menu of the game."""
+    try:
+        roblox = Audio("music/Roblox.mp3", loop=True, autoplay=True) # Chill menu music plays until the menu is exited out of
+        menu_bg = Entity(parent = camera.ui, model = 'quad', scale = (0.7,0.5), color = color.dark_gray, z = 1) # Menu BG
+
+        title = Sprite(texture="images/DoomPython.png", scale = 0.45, y = 0.25, parent = camera.ui, background=True, origin=(0,0)) # Title for the game
+
+        start_button = Button(text="Simulator Game", scale=(0.3, 0.12), y=0, x=-0.18, color= color.black, parent=camera.ui) # Start Button for Simulator Game
+        survivalplay_button = Button(text="Survival Game", scale=(0.3, 0.12), y=0, x=-0.50, color = color.black, parent=camera.ui) # Start Button for Survival Game
+        tutorial_button = Button(text="Tutorial", scale=(0.3, 0.12), y=0, x=0.50, color= color.black, parent=camera.ui) # Tutorial Button
+        exit_button = Button(text="Exit Game", scale=(0.3, 0.12), y=0, x=0.18, color = color.red, parent=camera.ui) # Exit Button
+
+        start_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), start_game(), roblox.stop(), print("Game Started!")) # Calls the start_game function in Sprint2.py when the start button is clicked
+        survivalplay_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), survival_game(), roblox.stop(), print("Freeplay Mode Activated!")) # Calls the survival_game function in Sprint2.py when the survival button is clicked
+        tutorial_button.on_click = lambda: (destroy(menu_bg), destroy(title), destroy(start_button), destroy(exit_button), destroy(survivalplay_button), destroy(tutorial_button), instructions(roblox), print("Tutorial Mode Activated!")) # Calls the instructions function in Sprint2.py when the tutorial button is clicked
+        exit_button.on_click = application.quit # Exits the game when the exit button is clicked
+    except Exception as e: # Error handling
+        print(f"Error in menu function: {e}")
+
+# Made an inherited class from Entity to create a bullet that moves in the direction it was shot
+class Bullet(Entity):
+    """A class inherited from Entity, being a bullet with properties such as position, direction, and collision."""
+    def __init__(self, position, direction): # Position and direction are passed as parameters
+        try:
+            super().__init__(parent=scene, model='cube', scale=1, color=color.black, collider='box', position = position) # Initializes the bullet entity with a cube model, black color, and box collider
+            self._direction = direction.normalized() # Sets the direction of the bullet as a protected attribute, no need to do self.direction = self._direction
+            self.look_at(position + self._direction) # Makes the bullet look at the position it is moving towards
+        except Exception as e: # Error handling
+            print(f"Error initializing Bullet: {e}")
+
+    # Class method that updates the bullets position after predetermined attributes
+    def update(self):
+        """Updates the bullets position and checks for collisions."""
+        try:
+            self.position += self._direction * 1000 * time.dt # Moves the bullet in the direction it is facing
+            hit_info = self.intersects() # Checks for collisions with other entities
+            if hit_info.hit: # If the bullet hits something
+                destroy(self) # Destroy the bullet if it hits something
+                return # Exit the update method, prevent further movement
+            if distance(self.position, camera.world_position) > 1000: # Checks if the bullet is further than 1000 units away from the camera
+                destroy(self) # Destroys the bullet if it is too far away from the camera
+        except Exception as e: # Error handling
+            print(f"Error updating Bullet: {e}")
+
+# Player class inherited from FirstPersonController
+class Player(FirstPersonController):
+    def __init__(self, **kwargs):
+        super().__init__(model='cube', color=color.clear, speed=10, scale_y=2, collider='box', **kwargs) # Uses super to set attributes to certain values and store in dict using **kwargs
+        self._speed = 10 # Make a protected attribute of speed
+        self._gun = None # Initialises the player to not have a gun as a protected attribute
+        self.gun = self._gun # Since the protected attribute does not directly access gun and other parts of the code require this to easily access/modify (e.g player.gun would not work with player._gun), we assign it to the actual attribute
+        self._healthbar = HealthBar(bar_color=color.lime.tint(-.25), roundness=.5, highlight_color=color.yellow.tint(-.2)) # Initialises a healthbar for the player, a protected attribute, the same as before
+        self.healthbar=self._healthbar # Also assign the protected attribute to the actual attribute for previous reasons
+        scene.player = self # Assign the player to the scene at default
+
+    # Sprint method for the class
+    def sprint(self, key):
+        """Function to handle sprinting mechanics for the player."""
+        try:
+            if key == "shift": # Checks if the shift key is pressed
+                self._speed = 20 # Sets player speed to 20 when sprinting
+            elif key == "shift up": # Checks if the shift key is released
+                self._speed = 10 # Resets player speed to 10 when not sprinting
+            self.speed = self._speed # Assign speed to the protected attribute used in the function for previous reasoning
+        except Exception as e: # Error handling
+            print(f"Error in sprint function: {e}")
+
+    # Fixes the player's jumps so it doesn't glitch out
+    def override(self):
+        """Function to override the player's jumping behavior to ensure it only occurs when grounded."""
+        try:
+            if not self.grounded and self.y > 0: # If the player is not grounded and is above ground level
+                self.y -= 0.1 # Move the player down -.1
+                self.position = Vec3(round(self.x, 3), round(self.y, 3), round(self.z, 3)) # Round coords of the player to ensure no no-clipping
+        except Exception as e: # Error handling
+            print(f"Error in override function: {e}")
+
+    # Handles player damage from enemies
+    def enmdmg(self, amount):
+        """Function to handle player damage from enemies."""
+        try:
+            self._healthbar.value -= amount # Subtracts the healthbar amount
+            if self._healthbar.value <= 0: # If the healthbar amount is less than or equal to 0
+                application.quit() # Quit the application
+        except Exception as e: # Error handling
+            print(f"Error in enmdmg function: {e}")
+
+    # Handles player damage to the enemy
+    def plrdmg(self, enemy, damage):
+        """Function to handle player damage to the enemy. Uses raycasting to detect if it hit anything and if it is the enemy."""
+        try:
+            hit_info = raycast(camera.world_position, camera.forward, distance=500, ignore=[self], debug=False) # Raycasts from the camera's position in the direction it is facing
+            if hit_info.hit and hit_info.entity == enemy and enemy.health > 0: # Checks if the raycast hit an entity and they have greater than 0 health after hitting
+                Audio("music/EnemyPain.wav") # Play enemy pain audio
+                enemy.blink(color.red) # Blinks the enemy red to indicate it has been hit
+                invoke(setattr, enemy, 'color', color.blue, delay=0.15) # Delay the color change to blue after being hit
+                enemy.health -= damage # Decreases the enemy's health by gun damage
+                print(f"Enemy hit! Health: {enemy.health}") # Prints the enemy health to the console
+            elif enemy.health <= 0: # Checks if the enemy's health is less than or equal to 0
+                    Audio("music/EnemyDeath.wav") # Play enemy death audio if dead
+                    print(f"Enemy defeated! {enemy.health}") # Prints a message to the console when the enemy is defeated
+                    destroy(enemy) # Destroys the enemy entity when defeated
+                    return True # Returns True if enemy is defeated, for potential actions
+        except Exception as e: # Error handling
+            print(f"Error in plrdmg function: {e}")
+      
+# Make sure the enemy is always grounded and never no-clipping
+class GroundedSmoothFollow(SmoothFollow):
+    # Make a subclass using inhertance from the SmoothFollow class in Ursina
+    """A subclass/childclass of SmoothFollow from Ursina that ensures the entity not only follows the target but also stays grounded."""
+    # We use a form of polymorphism here to override the update method of SmoothFollow
+    def update(self):
+        try:
+            direction = Vec3(self.target.x - self.entity.x, 0, self.target.z - self.entity.z).normalized() # Calculates the direction vector from the target to the entity, ignoring the y axis to keep the entity grounded
+            self.entity.position += direction * self.speed * time.dt # Moves the entity towards the target at a specified speed, ensuring it stays grounded by not changing the y position
+        except Exception as e: # Error handling
+            print(f"Error in GroundedSmoothFollow update method: {e}")
+
+# Gun class that the player can equip and shoot inherited from button
+class Gun(Button):
+    """A subclass/childclass of Button that allows the user to press it like a button ingame and pick it up, also allowing for shooting"""
+    def __init__(self, model, color, position, scale, damage=50, fire_rate=0.5, **kwargs): # Sets some attributes in a dict using **kwargs and defines some beforehand
+        super().__init__(parent=scene, model=model, color=color, origin_y=-.5, position=position, scale=scale, **kwargs) # Values added to keys defined in attributes beforehand using super avoiding redundancy
+        # New protected attributes for the gun, this is a special case as inheritance from gun allows the attribute to be used without defining the original attribute = protected attribute also in shotgun and minigun as it is only used in the shoot method of gun, shotgun and minigun, within those and not anywhere else, entitling the shoot method as the public interface of these attributes.
+        self._damage = damage # Initialise protected attribute for damage
+        self._fire_rate = fire_rate # Initialise protected attribute for fire rate
+        self._last_shot_time = 0 # Initialise protected attribute for last shot time
+
+    def shoot(self):
+        """Shoots the players gun."""
+        from time import time # Time to check the last shot time and maintain firerate
+        try:
+            if time() - self._last_shot_time >= self._fire_rate: # Checks if the time since the last shot is greater than or equal to the fire rate
+                Audio("music/Pistol.mp3") # Play audio for pistol shooting
+                self.blink(color.red) # Blinks the gun red
+                offset = Vec3(0, 0, 0) # Offset for the bullet position is straight in front of the gun
+                Bullet(position=self.world_position + self.forward * 1.5 + offset, direction=self.forward) # Creates a bullet entity at the position of the gun
+                self._last_shot_time = time() # Updates the last shot time to the current shot
+                return True # Tells that the gun was successfully shot
+            return False # No shot was fired due to fire rate restriction
+        except Exception as e: # Error handling
+            print(f"Error in Gun shoot method: {e}")
+            return False # Returns false if there was an error in shooting
+        
+    def get_gun(self, player):
+        """Function to equip a gun to the player."""
+        try:
+            if player.gun: # Checks if the player has a gun
+                player.gun.drop_gun(player) # Drops the players current gun using the drop_gun function
+            self.parent = camera # Sets the parent of the new gun to the camera
+            self.position = Vec3(0,-.80,1) # Sets the position of the new gun relative to the camera
+            player.gun = self # Assigns the new gun to the player
+            self.collider = None # Removes the collider from the new gun to prevent collisions
+            Audio("music/Reload.mp3")
+        except Exception as e: # Error handling
+            print(f"Error getting gun: {e}")
+    
+    def drop_gun(self, player):
+        """Function to drop a gun from the player to the ground"""
+        try:
+            if self.parent == camera: # If the player has a gun
+                self.parent = scene # Set the gun to the scene
+                player.gun = None # Unequips the gun from the player
+                drop_point = player.position + Vec3(0, 1, 1) # Drops it near the player a little higher
+                self.position = drop_point # Sets the position to the drop point
+                self.collider = 'box' # Gives the collider back
+        except Exception as e: # Error handling
+            print(f"Error dropping gun: {e}")
+
+class Shotgun(Gun):
+    """Inherited from the Gun class, this gun incorporates a multiple bullet approach to make it look aesthetic, as well as random damage"""
+    def __init__(self, model, color, position, scale, damage=50, fire_rate=0.7, **kwargs): # Uses **kwargs to set predetermined values and keys in a dict
+        super().__init__(model=model, color=color, position=position, scale=scale, damage=damage, fire_rate=fire_rate, **kwargs) # Uses super to assign some of these values in the **kwargs constructor and avoid redundancy
+
+    def shoot(self):
+        """Shoots the players gun."""
+        from time import time
+        try:
+            if time() - self._last_shot_time >= self._fire_rate: # Checks if the time since the last shot is greater than or equal to the fire rate
+                Audio("music/Shotgun.mp3") # Plays audio for shotgun shooting sound
+                self.blink(color.orange) # Blinks the gun orange
+                random_damage = random.randint(90, 120) # Random damage variable which resets every time we check fire rate
+                self._damage = random_damage # Sets damage to random damage
+                for i in range(5):  # Spawns 5 bullets
+                    offset = Vec3(0, 0, i * 0.0001)  # Offset of the bullets
+                    Bullet(position=self.world_position + self.forward * 1.5 + offset, direction=self.forward + Vec3(random.uniform(-0.02, 0.02), 0, random.uniform(-0.02, 0.02))) # Random coordinates where the shotgun shoots
+                self._last_shot_time = time() # Updates the last shot time to the current shot
+                return True # Tells that the gun was successfully shot
+            return False # No shot was fired due to fire rate restriction
+        except Exception as e: # Error handling
+                print(f"Error in Gun shoot method: {e}")
+                return False # Returns false if there was an error in shooting
+        
+    def get_gun(self, player):
+        """Function to equip a gun to the player."""
+        try:
+            if player.gun: # If the player has a gun
+                player.gun.drop_gun(player) # Drops the old gun
+            self.parent = camera # Sets the parent of the new gun to the camera
+            self.position = Vec3(0,-.75,.5) # Sets the position of the new gun relative to the camera
+            player.gun = self # Assigns the new gun to the player
+            self.collider = None # Removes the collider from the new gun to prevent collisions
+        except Exception as e: # Error handling
+            print(f"Error getting gun: {e}")
+    
+    def drop_gun(self, player):
+        """Function to drop a gun from the player to the ground"""
+        try:
+            if self.parent == camera: # If the gun is equipped to the camera
+                self.parent = scene # Set the gun parent to the scene
+                drop_point = player.position + Vec3(0, 1, 1) # Determines drop point close to player
+                self.position = drop_point # Sets position to drop point
+                self.collider = 'box' # Sets box collider
+        except Exception as e: # Error handling
+            print(f"Error dropping gun: {e}")
+
+class Minigun(Gun):
+    def __init__(self, model, color, position, scale, damage=20, fire_rate=0.1, **kwargs): # Uses **kwargs to store key and values of attributes
+        super().__init__(model=model, color=color, position=position, scale=scale, damage=damage, fire_rate=fire_rate, **kwargs) # Uses super to forward certain attribute values to the dict
+
+    def shoot(self):
+        from time import time
+        try:
+            if time() - self._last_shot_time >= self._fire_rate: # Checks if the time since the last shot is greater than or equal to the fire rate
+                Audio("music/Minigun.wav", volume=2) # Plays Audio for shooting minigun
+                self.blink(color.red) # Blinks gun red
+                offset = Vec3(0, 0, 0) # Offset for the bullet position is straight in front of the gun
+                Bullet(position=self.world_position + self.forward * 1.5 + offset, direction=self.forward) # Creates a bullet entity at the position of the gun
+                self._last_shot_time = time() # Updates the last shot time to the current shot
+                return True # Tells that the gun was successfully shot
+            return False # No shot was fired due to fire rate restriction
+        except Exception as e: # Error handling
+            print(f"Error in Gun shoot method: {e}")
+            return False # Returns false if there was an error in shooting
+        
+    def get_gun(self, player):
+        """Function to equip a gun to the player."""
+        try:
+            if player.gun: # If the player has a gun
+                player.gun.drop_gun(player) # Drops the players old gun
+            self.parent = camera # Sets the parent of the new gun to the camera
+            self.position = Vec3(0,-1.10,.5) # Sets the position of the new gun relative to the camera
+            player.gun = self # Assigns the new gun to the player
+            self.collider = None # Removes the collider from the new gun to prevent collisions
+        except Exception as e: # Error handling
+            print(f"Error getting gun: {e}")
+
+    def drop_gun(self, player):
+        """Function to drop a gun from the player to the ground"""
+        try:
+            if self.parent == camera: # If the player's gun is equipped to the camera
+                self.parent = scene # Sets the players gun to the scene
+                drop_point = player.position + Vec3(0, 1, 2) # Determines drop point close to the player
+                self.position = drop_point # Sets position to the drop point
+                self.collider = 'box' # Sets collider for the gun
+        except Exception as e: # Error handling
+            print(f"Error dropping gun: {e}")
+
+class HealthPack(Entity):
+    def __init__(self, position, heal_amount = 25):
+        super().__init__(parent=scene, model='assets/HealthPack.Obj', texture = "assets/HealthPack_Albedo.tga", collider='box', position=position, scale=(0.02, 0.05, -0.02))
+        self._heal_amount = heal_amount # Heal amount initialised as a protected attribute, we don't need the additional self.heal_amount = self._heal_amount because it is only used internally within the healthpack class
+
+    def heal(self):
+        """Checks if the player hits the healthpack, and if so heals them"""
+        try:
+            scene.player.healthbar.value = min(scene.player.healthbar.value + self._heal_amount, 100) # Heals the player's healthbar by 25, no more than 100
+            Audio("music/Heal.mp3", volume=6) # Plays heal audio at 6x volume
+            destroy(self) # Destroys the healthpack
+            print(f"Sucessfully healed! Health: {scene.player.healthbar.value}") # Prints successful command
+            return True # Returns True when successfully healed
+        except Exception as e: # Error handling
+            print(f"Error in heal method: {e}")
+            return False # Returns False when healing failed
+```
+***
+- Sprint4.py
+```python
+from ursina import * # Ursina Library
+from Sprint4Module import Gun, Shotgun, Minigun, Player, HealthPack, GroundedSmoothFollow, menu, spawn_enemy, random_spawn_enemy # Importing classes and functions from my Sprint4Module
+import random # Import random for spawning enemies randomly
+
+enemies_alive = [] # List to keep track of alive enemies
+healthpacks_alive = [] # List to keep track of healthpacks spawned
+enemies_killed = 0 # Variable to keep track of killed enemies
+time_elapsed = 0 # Variable to keep track of time elapsed in survival mode
+
+def start_game():
+    """Initialises the simulator gamemode, where the player can spawn enemies and shoot them, as well as use a hookshot."""
+
+    global ground, input, update, border_bottom, border_top, border_left, border_right # Global variables
+
+    # Sync the game to the monitor's refresh rate, default 60hz to prevent screen tearing
+    window.vsync = True
+
+    # Window.borderless helps with mouse movement issues on macOS
+    window.borderless = False 
+
+    # Initialises the Player class and the Entity class from the ursina module as ground, as well as the Sky class for the sky with a new texture, as well as music
+    player = Player()
+    ground = Entity(model='plane', collider='box', scale = 128, texture ='images/DoomFloor1.png')
+    border_top = Entity(model='cube', scale=(128, 10, 1), position=(0, 5, 64), collider='box', visible=False)
+    border_bottom = Entity(model='cube', scale=(128, 10, 1), position=(0, 5, -64), collider='box', visible=False)
+    border_left = Entity(model='cube', scale=(1, 10, 128), position=(-64, 5, 0), collider='box', visible=False)
+    border_right = Entity(model='cube', scale=(1, 10, 128), position=(64, 5, 0), collider='box', visible=False)
+    Sky(texture = "images/DoomSky.png")
+    Audio('music/Doom.mp3', loop=True, autoplay=True)
+
+    # Gives the player no gun at the start, initialises 3 guns
+    player.gun = None
+    gun = Gun(model='assets/glock.obj', color=color.gray, position=(3,1,3), scale=(.2,.2,.2))
+    gun.on_click = lambda: gun.get_gun(player)
+
+    shotgun = Shotgun(model='assets/gun.obj', color=color.gray, position=(5, 1, 3), scale=(.4,.4,.2))
+    shotgun.on_click = lambda: shotgun.get_gun(player)
+
+    minigun = Minigun(model = 'assets/Minigun_.obj', color=color.gray, position=(7, 1, 3), scale=(.05,.05,.025))
+    minigun.on_click = lambda: minigun.get_gun(player)
+
+    # Makes a hookshot allowing the player to traverse and avoid damage in simulator mode
+    hookshot_target = Button(parent=scene, model='cube', color=color.brown, position=(4,5,5))
+    hookshot_target.on_click = Func(player.animate_position, hookshot_target.position, duration=.5, curve=curve.out_quad)
+
+    # Text that shows the user the number of enemies currently alive and killed
+    enemies_text = Text(text = f'Enemies Killed: {enemies_killed} | Enemies Alive: {len(enemies_alive)}', position = (0, 0.45), scale = 1, color = color.white)
+
+    # Updates the enemy text when called
+    def update_enemy_texts():
+        """Updates the enemies text to show the number of enemies killed and alive when called."""
+        enemies_text.text = f'Enemies Killed: {enemies_killed} | Enemies Alive: {len(enemies_alive)}'
+
+    # Updates the enemy text every frame
+    def update():
+        """Updates the conditional statement of hitting an enemy or not and of hitting the healthpack every frame"""
+        for enemy in enemies_alive: # Loops through all alive enemies
+            if player.intersects(enemy).hit: # If the player hits any
+                player.enmdmg(1) # Damages the player by 1 
+        for healthpack in healthpacks_alive[:]: # For healthpack in all alive healthpacks
+             if healthpack.intersects(scene.player).hit: # If any healthpack touches/hits the player parented to the scene then
+                if healthpack.heal(): # Call the healthpack heal and also check if it successfully healed
+                    healthpacks_alive.remove(healthpack) # Remove the healthpack from the list (No need to destroy as it is done in the heal function in the module)
+
+    # Handles other input required functions such as sprinting, shooting
+    def input(key):
+        global enemies_killed, enemies_alive
+        """Function that handles the main input for the game, such as sprinting, shooting, and player/enemy damage."""
+        player.sprint(key) # Sprint function
+        player.override() # Prevents jumping when not grounded
+        if player.gun: # If the player has a gun
+            if isinstance(player.gun, Minigun) and held_keys['left mouse']: # If the gun is from the minigun class and the left mouse button is held down
+                if player.gun.shoot(): # If the player successfully shoots
+                    for enemy in enemies_alive[:]: # Loops through all alive enemies
+                        if player.plrdmg(enemy, player.gun._damage): # Checks if the player kills the enemy
+                            enemies_alive.remove(enemy) # Removes the enemy from the alive list
+                            enemies_killed += 1 # Adds to the enemies killed count
+                            update_enemy_texts() # Updates the enemies text
+            elif isinstance(player.gun, Shotgun) or isinstance(player.gun, Gun) and key == 'left mouse down': # If the player only presses left mouse down once
+                if player.gun.shoot(): # If the player successfully shoots
+                    for enemy in enemies_alive[:]: # Loops through all alive enemies (Copy of the existing list)
+                        if player.plrdmg(enemy, player.gun._damage): # Checks if the player kills the enemy
+                            enemies_alive.remove(enemy) # Removes the enemy from the alive list
+                            enemies_killed += 1 # Adds to the enemies killed count
+                            update_enemy_texts() # Updates the enemies text
+        if key == 'e': # Checks if the E key is pressed
+            enemy = spawn_enemy(player) # Spawns an enemy
+            enemies_alive.append(enemy) # Adds the enemy to the alive list
+            update_enemy_texts() # Updates the enemies text
+        if key == 'r': # Checks if the R key is pressed
+            healthpack = HealthPack(position=(8, 1, 5)) # Puts a healthpack in a designated position
+            healthpacks_alive.append(healthpack) # Appends it to healthpacks_alive for tracking
+
+def survival_game():
+    """Initialises the survival gamemode, where the player must survive for as long as possible against endless waves of enemies."""
+    global ground, input, time_elapsed, update, gun, border_bottom, border_top, border_left, border_right # Global variables
+
+    # Sync the game to the monitor's refresh rate, default 60hz to prevent screen tearing
+    window.vsync = True
+
+    # Initialises the program to be defaulted to fullscreen and window.borderless helps with mouse movement issues on macOS
+    window.borderless = False 
+
+    # Time elapsed variable
+    time_elapsed = 0
+
+    # Initialises the Player class and the Entity class from the ursina module as ground, as well as the Sky class for the sky with a new texture, as well as music
+    player = Player()
+    ground = Entity(model='plane', collider='box',scale = 128, texture ='images/DoomFloor1.png')
+    border_top = Entity(model='cube', scale=(128, 10, 1), position=(0, 5, 64), collider='box', visible=False)
+    border_bottom = Entity(model='cube', scale=(128, 10, 1), position=(0, 5, -64), collider='box', visible=False)
+    border_left = Entity(model='cube', scale=(1, 10, 128), position=(-64, 5, 0), collider='box', visible=False)
+    border_right = Entity(model='cube', scale=(1, 10, 128), position=(64, 5, 0), collider='box', visible=False)
+    Sky(texture = "images/DoomSky.png")
+    Audio('music/Doom.mp3', loop=True, autoplay=True)
+
+    # Initialises the player having a gun and makes a gun from the Button class and calls the function instantly to enable the gun in their possession
+    gun = Gun(model='assets/glock.obj', color=color.gray, position=(3,1,3), scale=(.2,.2,.2))
+    gun.on_click = lambda: gun.get_gun(player)
+    gun.get_gun(player)
+
+    # Enemies text which tracks the enemies killed and alive
+    enemies_text = Text(text = f'Enemies Killed: {enemies_killed} | Enemies Alive: {len(enemies_alive)}', position = (0, 0.45), scale = 1, color = color.white)
+
+    # Function that updates the enemies text
+    def update_enemy_texts():
+        """Updates the enemies text to show the number of enemies killed and alive."""
+        enemies_text.text = f'Enemies Killed: {enemies_killed} | Enemies Alive: {len(enemies_alive)}'
+
+    # Time text that tracks the elapsed time when the survival gamemode is selected
+    time_text = Text(text = f'Elapsed Time: {int(time_elapsed)}', position = (0.5, 0.45), scale=1, color= color.white)
+
+    # Updates the time elapsed per frame and the text
+    def update_time_elapsed_texts():
+        """Updates the elapsed time to show the time elapsed"""
+        global time_elapsed
+        time_elapsed += time.dt
+        time_text.text = f'Elapsed time: {int(time_elapsed)}'
+
+    # Spawns the shotgun, minigun, boss and the boss alerter when called
+    def spawn_shotgun():
+            """Spawns the shotgun in the survival gamemode"""
+            try:
+                shotgun = Shotgun(model='assets/gun.obj', color=color.gray, position=(3,0,3), scale=(.4,.4,.2))
+                shotgun.on_click = lambda: shotgun.get_gun(player)
+            except Exception as e:
+                print(f"Error in spawning shotgun in survival: {e}")
+    
+    def spawn_minigun():
+            """Spawns the minigun in the survival gamemode"""
+            try:
+                minigun = Minigun(model = 'assets/Minigun_.obj', color=color.gray, position=(7, 0, 3), scale=(.4,.4,.2))
+                minigun.on_click = lambda: minigun.get_gun(player)
+            except Exception as e:
+                print(f"Error in spawning minigun in survival: {e}")
+
+    def spawn_boss():
+            """Spawns the final boss of the game"""
+            try:
+                x = random.uniform(-50, 50) # Random x-coordinate
+                z = random.uniform(-50, 50) # Random z-coordinate
+                enemy = Entity(model='assets/AlienGrub1.obj', texture='assets/AlienGrub1_Base_Diffuse.jpg', collider = 'box', scale = (0.1, 0.2, 0.1), position=(x, 3, z), health=10000) # Creates an enemy at a random position
+                enemy.add_script(GroundedSmoothFollow(target=player, offset=[0, 0, 0], speed=7)) # Adds a script to follow the player using GroundedSmoothFollow
+                enemies_alive.append(enemy) # Adds the enemy to the alive list
+                update_enemy_texts() # Updates the enemies text
+            except Exception as e:
+                print(f"Error while spawning boss: {e}")
+
+    def boss_alerter():
+        """Spawns the boss alerter and plays an audio and deletes after 5 seconds"""
+        alert = Text("Boss spawning in 10 Seconds!", position = (0, 0.30), scale = 1, color = color.white)
+        Audio("music/Alert.mp3")
+        destroy(alert, delay=5)
+
+    # Spawns both guns at a set amount of time by calling the individual functions
+    invoke(spawn_shotgun, delay = 200)
+    invoke(spawn_minigun, delay = 400)
+    invoke(spawn_boss, delay = 500)
+    invoke(boss_alerter, delay = 490)
+
+    # Spawns enemies randomly and adds them to a list, and tracks the alive enemies
+    def spawn_enemies_randomly():
+        """Spawns enemies randomly and adds them to the enemies_alive list."""
+        try:
+            enemy = random_spawn_enemy(player)
+            enemies_alive.append(enemy)
+            update_enemy_texts()
+            invoke(spawn_enemies_randomly, delay=random.uniform(1, 7))
+        except Exception as e:
+            print(f"Error in spawning enemies randomly in survival: {e}")
+
+    # Calls the function
+    invoke(spawn_enemies_randomly, delay = 10)
+
+    # Spawns healthpacks randomly and adds them to the healthpacks_alive list
+    def spawn_healthpack_randomly():
+        """Spawns healthpacks randomly and adds them to the healthpacks_alive list."""
+        try:
+            x = random.uniform(-50, 50) # Random x-coordinate
+            z = random.uniform(-50, 50) # Random z-coordinate
+            healthpack = HealthPack(position=(x, 1, z))
+            healthpacks_alive.append(healthpack)
+            invoke(spawn_healthpack_randomly, delay=random.uniform(20, 50))
+        except Exception as e:
+            print(f"Error in spawning healthpacks randomly in survival: {e}")
+
+    # Calls the function
+    spawn_healthpack_randomly()
+
+    # Updates the time every frame, using the unique update function in Ursina
+    def update():
+        """Updates the conditional statement of hitting an enemy or not and of hitting the healthpack every frame"""
+        update_time_elapsed_texts()
+        for enemy in enemies_alive[:]: # Loops through all alive enemies in a copy of the list
+            if player.intersects(enemy).hit: # If the player hits/touches an enemy in the copy list
+                player.enmdmg(1) # Do 1 damage for each frame touched
+        for healthpack in healthpacks_alive[:]: # Loops through all healthpacks in a copy of the list
+            if healthpack.intersects(scene.player).hit: # If the healthpack touches/hits the player specifically parented to the scene
+                if healthpack.heal(): # Calls the heal function and checks if the healthpack successfully healed via return
+                    healthpacks_alive.remove(healthpack) # Remove the healthpack from the list
+
+
+    # Controls the main input functions of the game
+    def input(key):
+        global enemies_killed, enemies_alive
+        """Function that handles the main input for the game, such as sprinting, shooting, and player/enemy damage."""
+        player.sprint(key) # Sprint function
+        player.override() # Prevents jumping when not grounded
+        if player.gun: # Checks if the player has a gun
+            if isinstance(player.gun, Minigun) and key == held_keys['left mouse']: # If the gun is from the minigun class and the left mouse button is held down
+                if player.gun.shoot(): # If the player successfully shoots the gun
+                    for enemy in enemies_alive[:]: # Loops through all alive enemies in a copy of the original list
+                        if player.plrdmg(enemy, player.gun._damage): # Checks if the player kills the enemy
+                            enemies_alive.remove(enemy) # Removes the enemy from the alive list
+                            enemies_killed += 1 # Adds to the enemies killed count
+                            update_enemy_texts() # Updates the enemies text
+                        
+            elif isinstance(player.gun, Shotgun) or isinstance(player.gun, Gun) and key == 'left mouse down': # Checks if the player has a gun
+                if player.gun.shoot(): 
+                    for enemy in enemies_alive[:]: # Loops through all alive enemies
+                        if player.plrdmg(enemy, player.gun._damage): # Checks if the player kills the enemy
+                            enemies_alive.remove(enemy) # Removes the enemy from the alive list
+                            enemies_killed += 1 # Adds to the enemies killed count
+                            update_enemy_texts() # Updates the enemies text
+
+# Initialises the instructions menu for the game
+def instructions(roblox):
+     """Initialises the instructions menu for the game, showing the user how to play the game and the controls."""
+     tutorial_bg = Entity(parent=camera.ui, model='quad', scale=(0.7, 0.5), color=color.dark_gray, z=1)
+     maingamemodes = Text("How to play:\n" "Survival Gamemode: Survive waves of enemies and live for as long as you can!\n" "Freeplay Gamemode: Spawn enemies with the E key\n or spawn health packs with the R key,\n use different guns, and simulate FPS!\n" "Exit: Exits the game (See ya!)", parent=tutorial_bg, position=(-0.85, 0.25), scale=1.75, color=color.white)
+     maincontrols = Text("Main Controls:\n" "WASD: Move the player around!\n" "Left mouse button: Shoot the gun!\n" "Shift: Sprint like the wind!\n" "E Key (Only in Freeplay): Spawns Enemies!\n" "R Key (Only in Freeplay): Spawns Health Packs!", parent=tutorial_bg, position=(-0.85, -0.25), scale=1.75, color=color.white)
+     exit_button = Button(text="Exit", parent=tutorial_bg, position=(-1.1, 0.91), scale=(0.1, 0.05), color=color.red, on_click= lambda: (destroy(maincontrols), destroy(maingamemodes), destroy(tutorial_bg), destroy(exit_button), roblox.stop(), menu(start_game, survival_game, instructions)))
+
+
+# Calls the menu function, makes the game fullscreen, and runs the game
+app = Ursina(fullscreen=True)
+window.fps_counter.enabled = False
+window.exit_button.visible = False
+window.entity_counter.visible = False
+window.collider_counter.visible = False
+menu(start_game, survival_game, instructions)
+app.run()
+```
+***
+## Review
+1. The program greatly exceeds the required expectations and criteria in my requirements documentation. The user is able to view a crosshair in the middle of their screen, the game is functional with WASD and mouse clicking controls, the player can view kill count and current enemies alive and the variables on the upper side of the screen are hidden, the system is able to load in under 10 second and have at least 60 fps as well as synthesise every function, the system does not include many extravagant bugs or similar failures, and the system is very easy to get a hold of, from the instructions tab to the game itself being simple. Referring to the criteria I have assigned myself, the game exceeds the expectations by include various new mechanics such as multiple guns, healthpacks, a bossfight, and iconic doom graphics (excluding the enemies) from the original game. Overall, the final sprint above all exceeds all these expectations, presenting a great functioning FPS game.
+
+2. As for my use-case scenario, the game sincerely handles the different ways that the player could play the game. The use-case has been modified miniaturely, but has covered the needs for a survival and simulation gamemode in the end as well as a tutorial button. Other than meeting the gameplay flow nearly perfectly, the issue still remains where I could not implement a game over screen in the end, and redirect the user back to the menu. Infact, when I tried to do this before (and I reiterate again) this ended up horribly and messed up the game entirely, from mouse controls becoming inverted and the game becoming unplayable. I originally planned to delete all 3D game elements after storing them in a list when initialised when the game over screen was triggered, but once I was taken back to the main menu and I clicked any of the spawning in buttons, the game instantly became unplayable to the point where none of the controls worked properly. Instead I resorted to an application.quit() function instead, which is saddening but is the only thing that I could do. Overall however, the program processes inputs and outputs well from clicking buttons to initialise the main game to gun functionalities and enemy damage/player damage, improving from the last sprint by initialising minigun functionalities to work smoother as an example. 
+
+3. The program is managed sufficiently and uses naming conventions of functions as well as the use of functions, comments, and organisation greatly. Functions are mostly stored as class methods (apart from functions impacting game flow in main.py) and classes can be added at any time for maintainability, and comments are used perpetually to signal understanding. Functions are named with simple, easy to understand keywords (sprint, shoot, etc), allowing for easier understanding. A significant improvement I could've made however is cluttering the main.py a little less, as many functions are present inside. However in the program's defence and specifically main.py, these functions define the full gameplay flow which I wanted to achieve in main.py, and in the module.py it would define the main logic. One of my commits was focused on the redesign of the module as it contained many stray functions not in classes, as I fixed the structure to focus on future addons I may utilise and as an example, adding the healthpack class was done smoothly. Other than the main.py cluttering event, the program and its use of docstrings and commenting, functions and naming conventions, as well as organisation profoundly resounds readability, structure, and maintainability.
+
+4. As this is the last sprint, I cannot improve this any further, but if I were to improve the game any further, the first change I would most likely make is to fix the data structure of my functions in main.py, and if I have to, I would create a GameLogic class to handle this for me, as well as a Spawning class. This is purely due to the fact that other functionalities such as a game over screen which is still a long perceived goal for me would be harder to implement without these key changes in place. Then coming second, would include the game over screen to ensure replayability in my game design. Feature enhancements would then come next, as I could possibly include more enemy types (A seperate class for the boss next time), more guns, a UI that is more suited to Doom, as I relentlessly tried to find healthbar UI for Doom but I could not find any, and possibly working on a new gamemode which is the wave gamemode which I preferred rather than a survival gamemode but I implemented anyway. Furthermore, these refinements and enhancements will lay the groundwork for more functionalities and features.
+***
+## Evaluation of System
+***
+1. Future updates can enhance the FPS simulator, these can include a game over screen and menu redirection, enhanced menu design, additional enemy types and AI and improved UI and HUD from Doom. Firstly, the current system terminates abruptly upon player death using application.quit(), and by implementing a game over screen that displays the player's score (e.g enemies killed, time survived) as well as redirecting to the main menu, this would enhance replayability. This could involve creating a GameOverScreen class to manage UI elements and store game data in a list before resetting the scene rather than without a class as I had tried before. An enhanced map design would allow for Ursina's Entity class to create a more immersive environment, as well as a Map class to preload designed levels from .obj files. Additional enemy behaviours such as dodging rather than the basic GroundedSmoothFollow script (e.g ranged attacks and dodging) with an enemy base class and varied subclasses would allow for further variety. The HUD displays basic text for enemy counts and time currently, and could benefit better from Doom's health bars and ammo bars. This could possibly be implemented using the Sprite class. As I said before, shaders would also allow for further graphical effects, which can be implemented by applying effects to specific entities. Furthermore, these changes address the peer reviews further down (an end screen) and also enhances certain limitations such as basic map design. These expectations also leverage OOP, allowing for proper code maintainability and scalability. Analyzing the impact of these updates on user experience positively, the game over screen would allow for proper replayability allowing for players to review scores without having to relaunch the game, increasing player retention and also aligning with standard FPS conventions, making the game feel complete. An enhanced map design will allow for immersive environments with obstacles and interactive elements, allowing for a more engaging experience. Players can strategize using cover, which can allow for the game to face. a more tactical approach. This will improve visual appeal and gameplay variety, empowering longer play sessions. Additional enemy types and AI will keep gameplay dynamic requiring players to reinvent their strategy. This allows for an increased challenge, appealing to skilled players. Improving the UI will make the game feel like a Doom-inspired title, also enhancing immersion and improving visuals. This can possibly stretch to a broader audience, reinstating nostalgia. Shaders can allow for enhanced visuals such as glowing enemies or dynamic lighting, allowing for a more atmospheric and immersive experience, aligning with Doom. This would make the game stand out visually. While these additions could be greatly utilised, there are possible negative impacts of implementing features in creation or ingame. A game over screen and menu may introduce new bugs and could result in another incomplete scene reset. This may require rigorous testing, which could potentially delay release. Complex maps may increase performance demand, dropping below 60 FPS violating non-functional requirements, and will require detailed optimization to maintain performance. Additional enemy types and complex AI could also overwhelm new players, which would also require balancing of new enemies. This would require playtesting of not only balance changes but also of performance profiling. New UI may increase load times, which could impact performance on low-end systems which the program originally appeals to. Playtesting certain assets will also be necessary to meet performance requirements. Shader implementation also would not run smoothly on all hardware which was mainly why I scrapped it in a previous sprint, and this would require other rendering options to ensure accessibility. Furthermore, the new updates presented are mainly performance based and come with multiple new use-cases the program must be able to process, which can come with positive refractions in implementation but may pose long-term negative effects.
+***
+2. Evaluating the system in relation to meeting the functional requirements and specifications, the system greatly achieves this goal. Firstly in functional requirements, in data retrieval, the system correctly details a gun, a crosshair, and UI elements as required. The hookshot and healthpacks enhance interactivity. Further onto user interface, the game runs on PCs with keyboard/mouse inputs (WASD, left-click, shift, E/R keys). The tutorial menu clearly explains controls, meeting usability requirements. Similarly in data display, kill count and enemies alive are shown via enemies_tet. The healthbar is visible, but ammo was not implemented. The survival and simulator gamemodes provide fun FPS experiences with enemy spawning and shooting mechanics in the core features of the game. User interaction through FirstPersonController and then passed down to the custom Player class handle smooth movement and shooting. The README and tutorial ensure easy navigation through this. Error handling is used robustly in all major functions (or almost every function), preventing crashes meeting reliability requirements. On the other hand in non-functional requirements, performance standards are maintained as the game loads in under 10 seconds and maintains 60 FPS on standard hardware. However, complex models such as AlienGrub1.obj may strain lower-end systems. Reliability is kept, as minimal bugs are present except for the Shift + Q crash, physics are kept realistic, ensuring reliable gameplay as well. Usability and accessiblity through the simple WASD and mouse controls make the game accessible, the menu is satisfactory but could be strengthened through a game over screen. The system was tested across all sprints, with Sprint4 introducing healthpacks, new models, and a boss. Functional tests that I kept in functions (e.g f"Enemy hit! Health: {enemy.health}) are also useful in my testing phase, as evidenced by console logs. Non-functional tests such as FPS and load time meet requirements satisfactorily, but the Shift + Q bug still remains as a notable issue. As for my judgement, the system exceeds functional requirements by including extra features such as healthpacks, multiple guns and a boss, and meets non-functional requirements with smooth performance and accessibility. However, the inability to implement a game over screen due to Ursina limitations and the Shift+Q bug slightly detract from the overall delivery. Overall, the system is highly successful, presenting a polished FPS experience with minor areas for improvement.
+***
+3. The gantt chart profoundly shows where I was most focused on in the project and where I was not. Firstly, the chart shows a clear pattern where I first completed programming elements before theory elements, as this was one of the key choices I made before starting the actual project. However, this new initiative completely backfired, as theory elements of the task were completed extremely late, almost in the final week because of my inability to perform the task during the TASmania trip and also my pure focus on the programming elements of the task. This was also not an entirely successful approach either, as I was not able to include all features, such as the game over screen which was omitted due to Ursina's limitations in resetting scenes. Additional features were included such as healthpacks, a boss, and multiple guns, but this still was not satisfactory enough to absolutely ensure replayability. As for my commit insights, I usually focused on programming elements before any theory related work, as theory related work was completed incredibly late. Some redesign commits were included as well as bug fixes showing intuitive focus on gameplay elements (As they are key in a 3D FPS game), but do not show too much focus on theory elements. A notable example from my gantt chart shows that I completed the first few theory elements on time, but from Sprint 2 to 4, I strayed away from theory tasks and completed them incredibly late. My judgement informs me that project management in terms of development ambition was intuitive, however in terms of theory requirements, I did not manage time sufficiently enough and ended up rushing certain tasks. Overall, the project was well managed in the development aspect, but had limited scope and management on the theory side.
+***
+4. 
+### Peer Review 1 - Levin Shao
+
+| Plus| Minus | Implication |
+|----------|----------|----------|
+| Detailed and interesting GUI   | Difficulty in rotating the camera, may have to set DPI higher | Add more modes such as the wave gamemode |
+| Various different modes  | Add a game over screen for replayability | Make enemies more realistic|
+| Good music choices for an intense game | | |
+| An excellent implementation of OOP, showcasing different techniques | | |
+| Decent graphics suited to lower-end systems| | |
+
+### Final summary from Levin Shao
+Ronen Gupta has managed to create a very impressive OOP-based system. His excellent knowledge of Python and programming in general has given him great skill at creating such an excellently-developed game. In summary, Ronen Gupta's system is excellent. It is VERY fun to play but could use a proper end screen and better camera rotation, but apart from that I must praise Ronen Gupta for his hard work in this program. Good job, Ronen Gupta!
+
+### Peer Review 2 - Victor Guo
+
+| Plus| Minus | Implication |
+|----------|----------|----------|
+| Includes a healthbar, as well as updated text for enemies alive and killed | Would be better if there was a game over screen (But as of now Ursina does not allow that ability as I know of) | Adding more modes such as a wave based gamemode|
+| Modes are suited for both a simulator and a survival shooter | Game could use weapon storage rather than spawning and picking up from the ground | Include other enemy types (e.g can shoot ranged)|
+| Player mechanics such as sprinting is also used, good for usability | | |
+| Map design and sky suits the Doom gameplay mood | | |
+| The music provides a fast paced gameplay experience for players| | |
+
+### Final summary from Victor Guo
+Ronen's project shows a greatly implicated OOP system. Adding additional functionalities like a game over screen, other modes, or a proper weapon storage system could improve his game further, but overall, the project still brings a great FPS game from Ronen. 
+
+### Evaluation in Relation to Peer Feedback
+The FPS simulator excels in meeting functional requirements as detailed by both of my peers and their reviews. They praise the GUI, varied modes, gameplay and music, as well as its OOP structure delivering a fun Doom-inspired experience, with features like sprinting, multiple guns, and healthpacks which exceed my expectations of the final sprint. However, the lack of a gameover screen as detailed by both peers violates the use case for displaying scores post-death limited by Ursina's scene issues, while Levin's camera rotation difficulty can be easily fixed through hardware settings or the actual project settings through mouse_sensitivity. Non-functionally, the system meets performance (at least 60 fps and less than 10 seconds load time) and accessibility goals, with various implemented controls and coupled with immersive music and a sky, though the Shift + Q bug and ommited game over screen slightly detract from perfection. Peer implications such as a wave based gammode, adding other enemies such as a ranged enemy, and weapon storage are possible, expanding current classes to enhance replayability and depth, confirming the project's success.
+
+5. 
+### Justification of the use of OOP Class Features
+Intro - The Doom inspired First Person Shooter (FPS) simulator leverages Object-Oriented Programming (OOP) principles - encapsulation, inheritance, polymorphism and abstraction to create a maintainable and extensible game. The following classes (Player, Gun, Shotgun, Minigun, Bullet, Healthpack, GroundedSmoothFollow) are designed to support the game's functional requirements, of basic movement, shooting, and UI. I depict these classes in their extensible form and how they are actually synthesised.
+
+Player Class - The Player class, inheriting from Ursina's FirstPersonController class, encapsulates player-specific attributes (_gun, _healthbar, _speed) and behaviors (sprint, override, enmdmg, plrdmg). These attributes are distinctly signalled protected (denoted by _) restricting direct access with public properties (e.g self.gun = self._gun) providing controlled interfaces. Methods like sprint adjust _speed (by holding shift), while override prevents no-clipping by resetting y position, addressing physics glitches in previous commits. The enmdmg and plrdmg methods manage enemy and player damage, updating HealthBar from the healthbar class, a composition of player. Using inheritance, I extend FirstPersonController avoiding redundancy. Player also focuses on custom logic while utilising core mechanics in the parent. Signifying encapsulation, I use protected attributes in _healthbar to ensure data integrity by limiting modifications to methods. Complexity is abstracted away in certain functions such as override hidden behind method calls, enhancing readability. The Player class's OOP features justify their use by focusing on player logic, ensuring usability, and supporting functional requirements for movement and basic interactions in the game. Inheritance, encapsulation, and abstraction were all use to leverage Ursina's engine, protecting state, and simplifying maintenance in respect to order, aligning with my peer's praises on OOP application.
+
+Gun Class - The Gun class, inheriting from Ursina's Button, serves as a base for future weapons and itself, encapsulating attribtes like _damage, _fire_rate and _last_shot_time. Methods include shoot (spawns a Bullet), get_gun (parents the gun to the camera), and drop_gun (detaches the gun from the camera). Protected attributes restrict direct modifications, ensuring consistent behaviour in future applications as well. Subclasses Shotgun and Minigun also inherit these features overriding the shoot method for specialized gun mechanics. Using inheritance, I extend the Button class to reuse Ursina's click detected for pick-up interactions, however it could be strengthened through Victor's suggestion of storage of weapons. _damage and _fire_rate are examples of internal attributes, modified only via shoot, preventing external tampering, showcasing encapsulation. The shoot method in itself is a form of polymorphism, as I depict overriding allowing subclasses to define unique behaviours. The Gun class justifies OOP use by enabling a flexible weapon system meeting shooting requirements. Inheritance and encapsulation ensure variety as well as leniency towards modification, while polymorphism supports new gun enhancements and peer-suggestions such as weapon storage, making it easy to add new weapons without altering core code.
+
+Shotgun and Minigun Classes - The Shotgun and Minigun classes inherit from the Gun class, mainly overriding shoot to implement unique firing mechanics. Shotgun spawns five bullets with random damage (random.randint(90, 120)) and spread, while Minigun uses a low _fire_rate (0.1) for rapid firing via held_keys['left mouse']. Both reuse get_gun and drop_gun from Gun, ensuring consistent equip/drop behaviour. Using inheritance, I reuse Gun's core functionality of get_gun and drop_gun minimizing code duplication. Another distinctive form of polymorphism, I override the shoot method creating distinct weapon behaviours by allowing new weapons without heavily modifying the Gun Class. Inherited protected attributes such as _damage also maintain data integrity across both of these classes. These subclasses justify OOP by enhancing gameplay variety, meeting functional requirements for diverse weapons. Polymorphism and inheritance enable extensible design, similar to Levin's requires for various modes and ensuring maintainability, as new weapons can be added easily.
+
+Bullet Class - The Bullet class, inheriting from Entity, encapsulates projectile behaviour with a protected attribute _direction and an update method to calculate movement. Utilised in Gun.shoot as a composition in my UML class diagram, it moves along _direction and handles collisions with enemies specifically. The update method adjusts the position of the bullet and destroys the bullet on impact, triggering damage. Inheritance of Entity extends Ursina's rendering and collision detection in my class, Bullet. Utilising Encapsulation, I make another protected attribute _direction being strictly internal, modified only via update, ensuring consistent movement. Update hides complex physics and collision logic, providing a simple interface, showcasing abstraction. The Bullet class justifies OOP by encapsulating projectile logic, meeting shooting requirements. Inheritance ensures efficiency, abstraction simplifies maintainence, and encapsulation supports Victor's ranged enemy suggestion as Bullet can also be reused for enemy projectiles.
+
+HealthPack Class - The HealthPack class, inheriting from Entity, encapsulates healing logic with a protected _heal_amount and a heal method. Spawned via the R key in simulator mode or randomly in survival mode, heal increases the players healthbar value, destroys itself, and plays audio. Inheritance of Entity reuses collision and rendering. Encapsulation of _heal_amount ensures that it is internal, only modified via heal ensuring controlled healing. Abstraction is denounced as heal simplifies health restoration and audio playback behind a single call. The HealthPack class justifies OOP by isolating healing logic, meeting interactivity requirements. Inheritance and encapsulation ensure it is structurally correct, and adjust healthbar amount without affecting other systems.
+
+GroundedSmoothFollow Class - The GroundedSmoothFollow class, inheriting from SmoothFollow, overrides update to keep enemies grounded while following the player. Attached to enemies via add_script, it calculates a normalized horizontal direction and moves the enemy, ignoring y-axis movement to ensure no floating. Inheritance reuses SmoothFollow's follow logic, polymorphism overrides update to customize movement ignoring the y-axis, and abstraction hides vector calculations behind update. The GroundedSmoothFollow class justifies OOP by enhancing enemy AI, meeting functional requirements. Polymorphism supports Levin's "realistic enemies" not in the design sense but the AI sense, and Victor's "ranged enemies" suggestions could be reused with this class, while inheritance ensures efficiency.
+
+Overall Justification - The OOP class features are justified by their alignment with the FPS simulator's need for maintainability, scalability, and modularity. Encapsulation (e.g _damage, _healthbar) protects data integrity, inheritance (e.g Entity, FirstPersonController) leverages Ursina engines inbuilt classes to create my own classes (e.g HealthPack, Player). Polymorphism (e.g shoot, update) enables flexibility across class methods, and abstraction (e.g sprint, heal) simplifies complex logic. Peer feedback in this way, with Levins's proclamations on OOP applications and Victor's praise for mechanics, validates the OOP design's success. The class structure supports functional requirements and enables peer-suggested enhancements, ensuring a robust future-proof system.
