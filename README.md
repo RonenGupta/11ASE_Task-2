@@ -7,7 +7,7 @@ Ronen Gupta
 
 - Main Menu: Choose between 4 choices, Survival, Free Play, View the Tutorial, or exit the game.
 - Survival Mode: Standard survival FPS gameplay with grotesque enemies and a secret finale. Survive for as long as you can!
-- Free Play Mode: Try spawning enemies of your own and try between 3 guns!
+- Free Play Mode: Try spawning enemies of your own as well as healthpacks and try between 3 guns!
 - Tutorial: View the controls for the gamemodes.
 - Exit: Exit the game.
 
