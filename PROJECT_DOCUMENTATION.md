@@ -300,7 +300,6 @@ BEGIN SUBROUTINE get_gun(player, gun)
         PRINT "Error getting gun: " + e
     ENDTRY
 END SUBROUTINE get_gun(player, gun)
-
 ```
 ***
 - Pseudocode for 2nd Subroutine: Sprint(player, key)
@@ -523,7 +522,7 @@ class GroundedSmoothFollow(SmoothFollow):
         except Exception as e:
             print(f"Error in GroundedSmoothFollow update method: {e}")
 ```
-
+***
 - Sprint2.py
 ```python
 from ursina import * # Ursina Library
@@ -682,7 +681,6 @@ def instructions():
 app = Ursina(fullscreen=True)
 menu(start_game, survival_game, instructions)
 app.run()
-
 ```
 ***
 ## Review
